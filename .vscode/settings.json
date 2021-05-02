@@ -83,5 +83,5 @@
     "[glsl]": {
         "editor.defaultFormatter": "ms-vscode.cpptools"
     },
-    "zenMode.hideLineNumbers": false
+    "zenMode.hideLineNumbers": false,
 }
