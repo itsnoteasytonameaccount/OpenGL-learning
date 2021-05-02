@@ -1,0 +1,17 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <stb_image.h>
+#include <iostream>
+
+#ifndef __TEXTURE_H__
+#define __TEXTURE_H__
+class Texture
+{
+private:
+    /* data */
+
+public:
+    const static int LOAD_IMAGE_FAILED = 1;
+    static int LoadTexture(const char *path, unsigned int *texture, int id = 1, int num = 0);
+};
+#endif

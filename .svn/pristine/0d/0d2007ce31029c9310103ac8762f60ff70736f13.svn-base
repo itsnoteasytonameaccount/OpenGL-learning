@@ -1,0 +1,251 @@
+#include "light.h"
+
+const char *vertexShaderSource = "#version 330 core\n"
+                                 "layout (location = 0) in vec3 vertex;\n"
+                                 "uniform mat4 viewMatrix;\n"
+                                 "uniform mat4 projectMatrix;\n"
+                                 "uniform mat4 modelMatrix;\n"
+                                 "void main()\n"
+                                 "{\n"
+                                 "   gl_Position = projectMatrix*viewMatrix*modelMatrix * vec4(vertex,1);\n"
+                                 "}\n\0";
+const char *fragmentShaderSource = "#version 330 core\n"
+                                   "uniform vec3 block_color;\n"
+                                   "uniform vec3 light_color;\n"
+                                   "out vec4 color;\n"
+                                   "void main()\n"
+                                   "{\n"
+                                   "   color = vec4(block_color,1);\n"
+                                   "}\n\0";
+const char *lightFragmentShaderSource = "#version 330 core\n"
+                                        "out vec4 color;\n"
+                                        "void main\n"
+                                        "{\n"
+                                        "   color = vec4(1,1,1,1);\n"
+                                        "}\n\0";
+
+static int WIDTH = 800;
+static int HEIGHT = 600;
+static Camera camera;
+const float vertexData[] = {
+    1, 1, 1,
+    1, 1, -1,
+    1, -1, 1,
+    1, -1, -1,
+    -1, 1, 1,
+    -1, 1, -1,
+    -1, -1, 1,
+    -1, -1, -1};
+const unsigned int indices[] = {
+    0, 2, 6, 0, 4, 6,
+    0, 1, 2, 1, 2, 3,
+    0, 1, 4, 1, 4, 5,
+    4, 6, 7, 4, 7, 5,
+    6, 7, 2, 7, 2, 3,
+    7, 5, 1, 7, 1, 3};
+const char *viewMatrixUniformName = "viewMatrix";
+const char *modelMatrixUniformName = "modelMatrix";
+const char *projectMatrixUniformName = "projectMatrix";
+
+void setViewport(GLFWwindow *window, int width, int height)
+{
+    WIDTH = width;
+    HEIGHT = height;
+    glViewport(0, 0, width, height);
+}
+
+void mouseMove(GLFWwindow *window, double xpos, double ypos)
+{
+    camera.ProcessMouseMovement(xpos, ypos);
+}
+void scroll(GLFWwindow *window, double xoffset, double yoffset)
+{
+    camera.ProcessMouseScroll(yoffset);
+}
+
+Light::Light()
+{
+    initWindow();
+    lastTime = glfwGetTime();
+    vaoid = 1;
+}
+Light::~Light()
+{
+    glDeleteVertexArrays(vaoid, &vao);
+    glDeleteBuffers(vaoid, &vbo);
+    glDeleteProgram(program);
+    glfwTerminate();
+}
+void Light::initWindow()
+{
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+    window = glfwCreateWindow(WIDTH, HEIGHT, "light sence", NULL, NULL);
+    if (window == NULL)
+    {
+        glfwTerminate();
+        return;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, setViewport);
+    glfwSetCursorPosCallback(window, mouseMove);
+    glfwSetScrollCallback(window, scroll);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        return;
+    }
+    setViewport(window, WIDTH, HEIGHT);
+    std::cout << "window init success" << std::endl;
+}
+void Light::createVao()
+{
+    glGenBuffers(vaoid, &vbo);
+    glGenBuffers(vaoid, &ebo);
+    glGenVertexArrays(vaoid, &vao);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    std::cout << "create vao success" << std::endl;
+}
+
+void Light::createLightVao()
+{
+    glGenBuffers(vaoid, &vbo);
+    glGenBuffers(vaoid, &ebo);
+    glGenVertexArrays(vaoid, &vao);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    std::cout << "create vao success" << std::endl;
+}
+
+void Light::compileProgram()
+{
+    int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    int status;
+    char log[512];
+    program = glCreateProgram();
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(vertexShader);
+    glCompileShader(fragmentShader);
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+    if (!status)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, log);
+        std::cout << "compile vertexShader failed:" << log << std::endl;
+        return;
+    }
+    glGetShaderiv(fragmentShader, GL_LINK_STATUS, &status);
+    if (!status)
+    {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, log);
+        std::cout << "compile fragmentShader failed:" << log << std::endl;
+        return;
+    }
+    glAttachShader(program, vertexShader);
+    glAttachShader(program, fragmentShader);
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
+    if (!status)
+    {
+        glGetProgramInfoLog(program, 512, NULL, log);
+        std::cout << "link program failed:" << log << std::endl;
+        return;
+    }
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+    glUseProgram(program);
+    std::cout << "program compile success" << std::endl;
+}
+void Light::draw()
+{
+    glm::vec3 lightColor(0.33f, 0.42f, 0.18f);
+    glm::vec3 toyColor(1.0f, 0.5f, 0.31f);
+
+    glm::mat4 project = glm::perspective(glm::radians(camera.getZoom()), (float)WIDTH / HEIGHT, 0.1f, 100.0f);
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -2.0f));
+    glClearColor(0.5f, 0.0f, 0.0f, 0.5f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBindVertexArray(vao);
+    setUniformMatrix4(viewMatrixUniformName, camera.getViewMatrix());
+    setUniformMatrix4(projectMatrixUniformName, project);
+    setUniformMatrix4(modelMatrixUniformName, model);
+    // glUniform3f(glGetUniformLocation(program, "block_color"), 0.1f, 0.5f, 0.6f);
+    glUniform3fv(glGetUniformLocation(program, "block_color"), 1, glm::value_ptr(toyColor));
+    // glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    std::cout << "draw end" << std::endl;
+}
+
+void Light::mainLoop()
+{
+    while (!glfwWindowShouldClose(window))
+    {
+        float current = (float)glfwGetTime();
+        delta = current - lastTime;
+        lastTime = current;
+        getKeyInput();
+        draw();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+}
+
+void Light::getKeyInput()
+{
+    int direction = 0x00;
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, true);
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_UP;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_DOWN;
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_RIGHT;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_LEFT;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_FORWARD;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_BACKWARD;
+    }
+    camera.ProcessKeyboardInput(direction, delta);
+}
+void Light::setUniformMatrix4(const char *name, glm::mat4 value)
+{
+    glUniformMatrix4fv(glGetUniformLocation(program, name), 1, GL_FALSE, glm::value_ptr(value));
+}

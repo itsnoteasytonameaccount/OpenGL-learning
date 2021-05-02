@@ -1,0 +1,250 @@
+"use strict";
+const POSITIVE_RORATE = 0x08, NEG_RORATE = 0xf7;
+const POSITIVE_DIR = 0x10, NEG_DIR = 0xef, X = 0x04, Y = 0x02, Z = 0x01;
+const U = Y | POSITIVE_DIR | POSITIVE_RORATE, F = Z | POSITIVE_DIR | POSITIVE_RORATE, B = Z & NEG_DIR | POSITIVE_RORATE, L = X & NEG_DIR | POSITIVE_RORATE, R = X | POSITIVE_RORATE | POSITIVE_DIR, D = Y & NEG_DIR | POSITIVE_RORATE;
+class PlayCommand {
+    constructor() {
+        this.trueCommand = {
+            U, R, L, D, B, F
+        };
+    }
+    static reverse_rorate_around_X(direct, flag) {
+        if (direct & X) {
+            return direct;
+        }
+        else {
+            direct = ~X & ~direct & 0x07 | (direct & ~0x07);
+        }
+        if (Z & direct) {
+            if (flag) {
+                return POSITIVE_DIR & ~direct | NEG_DIR & direct;
+            }
+            else {
+                return direct;
+            }
+        }
+        else {
+            if (flag) {
+                return direct;
+            }
+            else {
+                return POSITIVE_DIR & ~direct | NEG_DIR & direct;
+            }
+        }
+    }
+    static reverse_rorate_around_Y(direct, flag) {
+        if (direct & Y) {
+            return direct;
+        }
+        else {
+            direct = ~Y & ~direct & 0x07 | (direct & ~0x07);
+        }
+        if (X & direct) {
+            if (flag) {
+                return POSITIVE_DIR & ~direct | NEG_DIR & direct;
+            }
+            else {
+                return direct;
+            }
+        }
+        else {
+            if (flag) {
+                return direct;
+            }
+            else {
+                return POSITIVE_DIR & ~direct | NEG_DIR & direct;
+            }
+        }
+    }
+    static reverse_rorate_around_Z(direct, flag) {
+        if (direct & Z) {
+            return direct;
+        }
+        else {
+            direct = ~Z & ~direct & 0x07 | (direct & ~0x07);
+        }
+        if (Y & direct) {
+            if (flag) {
+                return POSITIVE_DIR & ~direct | NEG_DIR & direct;
+            }
+            else {
+                return direct;
+            }
+        }
+        else {
+            if (flag) {
+                return direct;
+            }
+            else {
+                return POSITIVE_DIR & ~direct | NEG_DIR & direct;
+            }
+        }
+    }
+    static reverse_rorate_around_axis(axis, face, flag) {
+        switch (axis) {
+            case X:
+                return this.reverse_rorate_around_X(face, flag);
+            case Y:
+                return this.reverse_rorate_around_Y(face, flag);
+            case Z:
+                return this.reverse_rorate_around_Z(face, flag);
+        }
+        return -1;
+    }
+    static outputCommand(direct) {
+        switch (direct) {
+            case U:
+                return "U";
+            case F:
+                return "F";
+            case D:
+                return "D";
+            case B:
+                return "B";
+            case L:
+                return "L";
+            case R:
+                return "R";
+            default:
+                return "unknown";
+        }
+    }
+    static outputAxis(direct) {
+        let axis;
+        switch (direct & 0x07) {
+            case X:
+            default:
+                axis = "X axis ";
+                break;
+            case Y:
+                axis = "Y axis ";
+                break;
+            case Z:
+                axis = "Z axis ";
+                break;
+        }
+        if (direct & POSITIVE_DIR) {
+            axis += "positive direction";
+        }
+        else {
+            axis += "negtive direction";
+        }
+        console.log(axis);
+    }
+}
+class Cube {
+    constructor({ order = 3, colors = ["red", "orange", "green", "blue", "yellow", "white"] }) {
+        this.cubeData = [
+            POSITIVE_DIR | X,
+            NEG_DIR | X,
+            POSITIVE_DIR | Y,
+            NEG_DIR | Y,
+            POSITIVE_DIR | Z,
+            NEG_DIR | Z
+        ].reduce((result, face, index) => {
+            result[face] = {
+                direct: 0,
+                colors: new Array(order * order).fill(index),
+                top_direct: ((face & Y & 0x07) == 0 ? X : Y) | POSITIVE_DIR
+            };
+            return result;
+        }, []);
+        this.colors = colors;
+        this.order = order;
+    }
+    getLine(face, line, axis) {
+        let { direct, colors, top_direct, [axis]: cached } = this.cubeData[face];
+        const order = this.order;
+        const result = [];
+        let end;
+        if (!(top_direct & axis)) {
+            if (cached) {
+                direct = (direct + cached) % 4;
+            }
+            else {
+                cached = 0;
+                while (top_direct != axis) {
+                    direct = (direct + 1) % 4;
+                    top_direct = PlayCommand.reverse_rorate_around_axis(face & 0x07, top_direct);
+                    cached++;
+                }
+                this.cubeData[face][axis] = cached;
+            }
+        }
+        switch (direct) {
+            case 1:
+                for (let i = order * (order - 1) + line; i >= 0; i -= order) {
+                    result.push(colors[i]);
+                }
+            case 2:
+                end = (order - 1) * order;
+                for (let i = order * order - 1; i >= end; i--) {
+                    result.push(colors[i]);
+                }
+            case 3:
+                for (let i = order * order - 1 - line; i >= 0; i -= order) {
+                    result.push(colors[i]);
+                }
+                break;
+            case 0:
+            default:
+                end = (line + 1) * order;
+                for (let i = line * order; i < end; i++) {
+                    result.push(colors[i]);
+                }
+                break;
+        }
+        return result;
+    }
+    setLine(face, line, replace_colors, axis) {
+        let { direct, colors, [axis]: cached, top_direct } = this.cubeData[face];
+        const order = this.order;
+        if (!(top_direct & axis)) {
+            if (cached) {
+                direct = (direct + cached) % 4;
+            }
+            else {
+                cached = 0;
+                while (top_direct != axis) {
+                    direct = (direct + 1) % 4;
+                    top_direct = PlayCommand.reverse_rorate_around_axis(face & 0x07, top_direct);
+                    cached++;
+                }
+                this.cubeData[face][axis] = cached;
+            }
+        }
+        switch (direct) {
+            case 1:
+                for (let i = 0; i < order; i++) {
+                    colors[order * (order - 1 - i) + line] = replace_colors[i];
+                }
+            case 2:
+                for (let i = 0; i < order; i++) {
+                    colors[order * order - 1 - i] = replace_colors[i];
+                }
+            case 3:
+                for (let i = 0; i < order; i++) {
+                    colors[order * (order - i) - 1 - line] = replace_colors[i];
+                }
+                break;
+            case 0:
+            default:
+                for (let i = 0; i < order; i++) {
+                    colors[i + line * order] = replace_colors[i];
+                }
+                break;
+        }
+    }
+    draw(gl) {
+    }
+    init(gl) {
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clearDepth(1);
+        const shader = gl.createShader(gl.FRAGMENT_SHADER);
+        const source = ``;
+        if (shader) {
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+        }
+    }
+}

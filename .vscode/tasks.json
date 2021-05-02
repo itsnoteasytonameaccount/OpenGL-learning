@@ -1,0 +1,133 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Emscripten compile to wasm",
+            "type": "shell",
+            "command": "emcc",
+            "args": [
+                "c/hello.cc",
+                "-Oz",
+                "-o",
+                "dist/webassembly/hello.wasm"
+            ],
+            "options": {
+                "env": {
+                    "path": "${env:PATH};D:\\environment\\emsdk\\upstream\\emscripten",
+                    "FILE_TO_COMPILE": "hello.cc"
+                }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Emscripten compile to html",
+            "type": "shell",
+            "command": "emcc",
+            "args": [
+                "c/alert.cc",
+                "-Oz",
+                "-o",
+                "dist/webassembly/alert.html",
+                "-s",
+                "ASSERTIONS=1"
+            ],
+            "options": {
+                "env": {
+                    "path": "${env:PATH};D:\\environment\\emsdk\\upstream\\emscripten",
+                    "FILE_TO_COMPILE": "hello.cc"
+                }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "typescript compile",
+            "type": "shell",
+            "command": "tsc",
+            "args": [
+                "--build",
+                "tsconfig.json"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [
+                "$tsc"
+            ]
+        },
+        {
+            "label": "测试输出",
+            "command": "%TEST_PARAMS%\\main.exe",
+            "group": "test",
+            "type": "shell",
+            "args": [
+                "%TEST_PARAMS% env${env:TEST_PARAMS}"
+            ],
+            "options": {
+                "env": {
+                    "TEST_PARAMS": "dist"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "makefile",
+            "command": "mingw32-make",
+            "group": "build",
+            "type": "process",
+            "args": [
+                "-f",
+                "c/makefile"
+            ],
+            "problemMatcher": [],
+            "options": {
+                "env": {
+                    // "FILE_TO_COMPILE": "c/DrawColor.cpp c/GLWindow.cpp c/Shader.cpp"
+                    "FILE_TO_COMPILE": "c/Box.cpp c/Texture.cpp c/GLWindow.cpp c/Shader.cpp"
+                    // "FILE_TO_COMPILE": "c/Box.cpp c/Texture.cpp c/GLWindow.cpp c/Shader.cpp"
+                    // "FILE_TO_COMPILE": "c/Square.cpp c/Drawer.cpp"
+                }
+            }
+        },
+        {
+            "label": "makeall",
+            "command": "mingw32-make",
+            "group": "build",
+            "type": "process",
+            "args": [
+                "-j16"
+            ],
+            "options": {
+                "env": {
+                    "COMPILE_PATH": "point_shadows"
+                }
+            },
+            "problemMatcher": []
+        }
+    ]
+}

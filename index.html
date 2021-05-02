@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./lib/gl-matrix-min.js"></script>
+</head>
+
+<body>
+    <main>
+        <canvas width="500" height="300" id="graphy-view"></canvas>
+    </main>
+</body>
+<script src="./lib/polyfill.js"></script>
+<script src="./dist/draw.js"></script>
+<script>
+    let canvas = document.querySelector("#graphy-view");
+    let ctx = canvas.getContext("webgl");
+    let drawer = new Drawer(ctx);
+    if (!ctx) {
+        console.error(); ("get context failed");
+    } else {
+        // drawer.example(0);
+    }
+    let then = 0;
+
+    // Draw the scene repeatedly
+    function render(now) {
+        now *= 0.001;  // convert to seconds
+        const deltaTime = now - then;
+        then = now;
+
+        drawer.example(deltaTime);
+
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+</script>
+
+</html>

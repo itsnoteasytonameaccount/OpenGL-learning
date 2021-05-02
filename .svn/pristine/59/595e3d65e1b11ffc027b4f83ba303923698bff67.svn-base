@@ -1,0 +1,165 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Emscripten compile to wasm",
+            "type": "shell",
+            "command": "emcc",
+            "args": [
+                "c/hello.cc",
+                "-Oz",
+                "-o",
+                "dist/webassembly/hello.wasm"
+            ],
+            "options": {
+                "env": {
+                    "path": "${env:PATH};D:\\environment\\emsdk\\upstream\\emscripten",
+                    "FILE_TO_COMPILE": "hello.cc"
+                }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Emscripten compile to html",
+            "type": "shell",
+            "command": "emcc",
+            "args": [
+                "c/alert.cc",
+                "-Oz",
+                "-o",
+                "dist/webassembly/alert.html",
+                "-s",
+                "ASSERTIONS=1"
+            ],
+            "options": {
+                "env": {
+                    "path": "${env:PATH};D:\\environment\\emsdk\\upstream\\emscripten",
+                    "FILE_TO_COMPILE": "hello.cc"
+                }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "typescript compile",
+            "type": "shell",
+            "command": "tsc",
+            "args": [
+                "--build",
+                "tsconfig.json"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": [
+                "$tsc"
+            ]
+        },
+        {
+            "label": "编译opengl文件",
+            "command": "g++",
+            "group": "build",
+            "args": [
+                "${env:CUSTOM_LIBS_PATH}/src/glad.c",
+                "c/gltest.cpp",
+                "-I",
+                "${env:CUSTOM_LIBS_PATH}/include",
+                "-LC:/Windows/WinSxS/amd64_microsoft-windows-gdi32_31bf3856ad364e35_10.0.18362.1_none_2bdc19f7c689fa4b",
+                "-lgdi32",
+                "-Llib",
+                "-lglfw3",
+                "-o",
+                "dist/main.exe"
+            ],
+            "options": {
+                "env": {
+                    // 此处配置的变量无法用在args中
+                    "FILES_TO_COMPILE": "${env:CUSTOM_LIBS_PATH}/src/glad.c c/gltest.cpp",
+                    "INCLUDE": "${env:CUSTOM_LIBS_PATH}/include/glad.h"
+                }
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "测试输出",
+            "command": "%TEST_PARAMS%\\main.exe",
+            "group": "test",
+            "type": "shell",
+            "args": [
+                "%TEST_PARAMS% env${env:TEST_PARAMS}"
+            ],
+            "options": {
+                "env": {
+                    "TEST_PARAMS": "dist"
+                }
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "makefile",
+            "command": "mingw32-make",
+            "group": "build",
+            "type": "process",
+            "args": [
+                "main",
+                "clean_mid_product"
+            ],
+            "problemMatcher": [],
+            "options": {
+                "env": {
+                    // "FILE_TO_COMPILE": "c/DrawColor.cpp c/GLWindow.cpp c/Shader.cpp"
+                    "FILE_TO_COMPILE": "c/Box.cpp c/Texture.cpp c/GLWindow.cpp c/Shader.cpp"
+                    // "FILE_TO_COMPILE": "c/Box.cpp c/Texture.cpp c/GLWindow.cpp c/Shader.cpp"
+                    // "FILE_TO_COMPILE": "c/Square.cpp c/Drawer.cpp"
+                }
+            }
+        },
+        {
+            "label": "比较时间",
+            "command": "g++",
+            "group": "build",
+            "type": "process",
+            "args": [
+                "${env:CUSTOM_LIBS_PATH}/src/glad.c",
+                "c/CameraTest.cpp",
+                "c/Camera.cpp",
+                "-I",
+                "${env:CUSTOM_LIBS_PATH}/include",
+                "-Llib",
+                "-lglfw3",
+                "-LC:/Windows/WinSxS/amd64_microsoft-windows-gdi32_31bf3856ad364e35_10.0.18362.1_none_2bdc19f7c689fa4b",
+                "-lgdi32",
+                "-o",
+                "camera2.exe"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}

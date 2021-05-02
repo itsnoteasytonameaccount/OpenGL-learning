@@ -1,0 +1,8 @@
+
+main:myopengl $(COMPILE_PATH)
+
+myopengl:
+	$(MAKE) -s -f c\libs\makefile
+
+ $(COMPILE_PATH):
+	$(MAKE) -s -f $(COMPILE_PATH)\makefile

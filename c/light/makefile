@@ -1,0 +1,4 @@
+include make_params.make
+
+main: c/light/*.cpp
+	$(CXX) -O2 c/light/*.cpp $(INCLUDE_PATH) $(REQUIRED_LIBS) -Ldist -lmyopengl -o dist/light.exe

@@ -1,0 +1,25 @@
+#include <GLWindow.h>
+#include <Box.h>
+#include <Camera.hpp>
+#include <Shader.h>
+#include <Texture.h>
+// #include <Model.h>
+#include <Controlller.hpp>
+
+class Instancing : public GLWindow
+{
+private:
+    unsigned int texture1, texture2, vao, vbo, vbo2;
+    // Box box;
+    Shader shader;
+    glm::vec2 offsets[100];
+    /* data */
+public:
+    void draw();
+    void getKeyInput();
+    void createVAO();
+    void createUniformBuffer();
+    glm::mat4 createModelMatrix();
+    Instancing(/* args */);
+    ~Instancing();
+};

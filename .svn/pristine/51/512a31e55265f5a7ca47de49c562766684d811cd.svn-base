@@ -1,0 +1,32 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <iostream>
+
+class Drawer
+{
+protected:
+    /* data */
+    unsigned int vao;
+    unsigned int vbo;
+    int id;
+    unsigned int program;
+    GLFWwindow *window;
+    const static int GLAD_LOAD_FAILED = -2;
+    const static int CREATE_WINDOW_FAILED = -1;
+    const static int COMPILE_SHADER_FAILED = -1;
+    const static int LINK_PROGRAM_FAILED = -2;
+
+public:
+    Drawer(/* args */);
+    ~Drawer();
+    int initWindow(int width, int height, const char *title);
+    int linkProgram(const char *fsSource, const char *vsSource);
+    int linkProgram(unsigned int fragementShader, unsigned int vertexShader);
+    int compileShader(const char *source, unsigned int type, unsigned int *shader);
+    void createVao(float data[], int length, int id, int location);
+    void getKeyInput();
+    virtual void draw();
+    void mainLoop();
+};
+void setViewport(GLFWwindow *window, int width, int height);

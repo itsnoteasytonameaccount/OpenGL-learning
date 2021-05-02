@@ -1,0 +1,42 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_glfw.h>
+#include <Drawer.h>
+
+#ifndef __CONTROLLER_H__
+#define __CONTROLLER_H__
+class Controller : public Drawer
+{
+public:
+    // static
+    Controller(/* args */)
+    {
+    };
+    ~Controller(){
+
+    };
+    void initImGui(GLFWwindow *window)
+    {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplOpenGL3_Init("#version 330 core");
+    };
+    void draw(DrawerData &dd)
+    {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        Drawer::draw(dd);
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    };
+};
+
+#endif

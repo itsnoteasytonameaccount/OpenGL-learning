@@ -1,0 +1,29 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+// #include <iostream>
+#include <stb_image.h>
+// #include <glm/glm.hpp>
+// #include <glm/gtc/matrix_transform.hpp>
+// #include <glm/gtc/type_ptr.hpp>
+// #include "GLWindow.h"
+// #include "Shader.h"
+
+#ifndef __TEXTURE_H__
+#define __TEXTURE_H__
+class Texture
+{
+private:
+    /* data */
+    unsigned char *data;
+    int width, height, nChannels;
+    unsigned int texture;
+
+public:
+    const static int LOAD_IMAGE_FAILED = 1;
+    int loadTexture(const char *path, int id, unsigned int type, unsigned int *texture);
+    int loadTexture(const char *path, int id);
+    int getTexture();
+    Texture(/* args */);
+    ~Texture();
+};
+#endif

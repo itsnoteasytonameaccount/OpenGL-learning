@@ -1,0 +1,12 @@
+
+main:myopengl $(COMPILE_PATH)
+
+ifdef SLIENT
+	SLIENT_OPTION = -s
+endif
+
+myopengl:
+	$(MAKE) $(SLIENT_OPTION) -f c/libs/makefile
+
+$(COMPILE_PATH):
+	$(MAKE) $(SLIENT_OPTION) -f c/$@/makefile CURRENT_PATH=$@

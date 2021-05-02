@@ -1,0 +1,40 @@
+#include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+
+enum Camera_Movement
+{
+    FORWARD,
+    BACKWARD,
+    LEFT,
+    RIGHT
+};
+
+const float YAW = 0.0f;
+const float PITCH = 0.0f;
+const float SPEED = 2.5f;
+const float SENSITIVITY = 0.1f;
+const float ZOOM = 45.0f;
+
+class Camera
+{
+private:
+    /* data */
+    float pitch, yaw, roll, zoom, moveSpeed, sensitivity, lastX, lastY;
+    bool isMoved;
+    glm::vec3 position;
+    glm::mat4 matrix;
+
+public:
+    Camera(int width, int height, glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), float pitch = PITCH, float yaw = YAW, float roll = 0.0f, float zoom = ZOOM, float moveSpeed = SPEED, float sensitivity = SENSITIVITY);
+    // 位置，俯仰，偏航，翻滚
+    void translate(glm::vec3 vector);
+    void rollChange(float angle);
+    void pitchChange(float angle);
+    void yawChange(float angle);
+    void processKeyboard(Camera_Movement direction, float deltaTime);
+    void processMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
+    glm::mat4 getViewMatrix();
+    ~Camera();
+};
