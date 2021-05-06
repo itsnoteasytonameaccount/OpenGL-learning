@@ -5,8 +5,9 @@ REQUIRED_LIBS = -Llib -lglfw3 -LC:/Windows/WinSxS/amd64_microsoft-windows-gdi32_
 
 DST_PATH := $(ROOT_PATH)/dist
 
-RSC_PATH := $(DST_PATH)/$(CURRENT_PATH)
-SRC_PATH := $(ROOT_PATH)/c/$(CURRENT_PATH)
+# 由于在cmd命令中引用了这两个路径，所以只能反斜杠分隔
+RSC_PATH := $(DST_PATH)\$(CURRENT_PATH)
+SRC_PATH := $(ROOT_PATH)\c\$(CURRENT_PATH)
 
 SHADER_PATH = dist/shader
 ASSETS_PATH = dist/assets

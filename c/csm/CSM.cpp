@@ -169,13 +169,25 @@ void CSM::draw()
     light_view = glm::lookAt(-(light_direction * glm::vec3(10.0f)), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     updateSplitZ();
 
-    for (int i = 0; i < count; i++)
+    glBindFramebuffer(GL_FRAMBUFFER, fbo);
+    for (int i = 0; i < 3; i++)
     {
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture_array, 0, i);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        drawScence(shadow_shader);
         /* code */
     }
+
+    glBindFramebuffer(GL_FRAMBUFFER, 0);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture_array);
+    shader.setUniform1i("shadow_texel", 1);
+    glActiveTexture(GL_TEXTURE0);
+    drawScence(shader);
 }
 
-void createVAO()
+void CSM::createVAO()
 {
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -263,7 +275,13 @@ void CSM::createModels()
 void CSM::createFramebuffer()
 {
     glGenTextures(1, texture_array);
-    glTexImage3D()
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture_array);
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, 800, 800, 3, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
     glGenFramebffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);

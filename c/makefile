@@ -4,7 +4,7 @@ REQUIRED_LIBS = -Llib -lglfw3 -LC:/Windows/WinSxS/amd64_microsoft-windows-gdi32_
 MID_PRODUCT = glad.o stb_image.o
 TARGET = dist/main.exe
 
-ifeq ('$(FILE_TO_COMPILE)','')
+ifeq ('$(FILE_TO_COMPILE)', '')
 	FILE_TO_COMPILE = c/Box.cpp c/Texture.cpp c/GLWindow.cpp c/Shader.cpp
 endif
 
