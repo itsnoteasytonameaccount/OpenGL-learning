@@ -17,30 +17,50 @@ struct Material {
 uniform Light light;
 uniform float z_values[3];
 uniform mat4 light_projection_view[3];
-uniform sampler3D shadow_texel;
+uniform sampler2DArray shadow_texel;
+uniform vec3 view_pos;
+uniform Material material;
+uniform int floor;
 
 in VS_OUT {
     vec4 FragPosCamera;
     vec4 FragPosWorld;
     vec3 Normal;
-    vec3 TexCoord;
+    vec2 TexCoord;
 } fs_in;
+
+out vec4 FragColor;
+
+int split = 0;
 
 float compute_shadow()
 {
-    int split = 0;
     for(int i = 0; i < 3; i++)
     {
-        if(z_values[i] >= fs_in.FragPosCamera.z)
+        if(z_values[i] >= -fs_in.FragPosCamera.z)
         {
             split = i;
+            break;
         }
     }
-    vec4 FragPosLight = light_projection_view[i] * fs_in.FragPosWorld;
-    vec3 FragPos = vec3(0.5f) * ((FragPosLight.xyz / FragPosLight.w) + vec3(1.0f));
+    float bias = 0.0001;
+    // if(split == 0)
+    // {
+    //     FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    // }
+    // else if(split == 1)
+    // {
+    //     FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    // }
+    // else
+    // {
+    //     FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    // }
+    vec4 FragPosLight = light_projection_view[split] * fs_in.FragPosWorld;
+    vec3 FragPos = 0.5f * ((FragPosLight.xyz / FragPosLight.w) + 1.0f);
     float depth = FragPos.z;
-    float closest_depth = texture(shadow_texel, vec3(FragPos.xy, i)).r;
-    return depth < closest_depth ? 1.0f : 0.0f;
+    float closest_depth = texture(shadow_texel, vec3(FragPos.xy, float(split))).r;
+    return depth <= closest_depth + bias ? 1.0f : 0.0f;
 }
 
 vec3 compute_light()
@@ -58,10 +78,11 @@ vec3 compute_light()
     vec3 specular = spec * light.specular;
     vec3 ambient = light.ambient;
 
-    float shadow = compute_shadow(lightDir, distance);
+    float shadow = compute_shadow();
     float attenuation = 1 / (distance * distance);
     
     return (specular + diffuse) * shadow + ambient;
+    // return vec3(1.0f);
 }
 
 void main()
@@ -69,10 +90,29 @@ void main()
     vec3 texel = texture(material.tex, fs_in.TexCoord).rgb;
     texel = pow(texel, vec3(2.2));
 
-    vec3 color = vec3(0.0f);
-    color = compute_light() * texel;
+    vec3 color = compute_light();
+    if(floor == 1)
+    {
+        if(split == 0)
+        {
+            color *= vec3(1.0f, 0.0f, 0.0f);
+        }
+        else if(split == 1)
+        {
+            color *= vec3(0.0f, 1.0f, 0.0f);
+        }
+        else
+        {
+            color *= vec3(0.0f, 0.0f, 1.0f);
+        }
+    }
+    else
+    {
+        color *= texel;
+    }
     color = pow(color, vec3(1/2.2));
-
+    
     FragColor = vec4(color, 1.0f);
-    // FragColor = vec4(1.0f);
+    // FragColor = vec4(texel, 1.0f);
+    // FragColor = vec4(0.0f);
 }

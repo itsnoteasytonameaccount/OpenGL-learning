@@ -4,7 +4,7 @@ DIRS = shader
 
 .PHONY: $(DIRS) mk_rsc_dir
 
-$(DST_PATH)/$(CURRENT_PATH).exe: $(SRC_PATH)/*.cpp $(DIRS) mk_rsc_dir
+$(DST_PATH)/$(CURRENT_PATH).exe: $(SRC_PATH)/*.cpp $(DIRS) mk_rsc_dir $(SRC_PATH)/*.hpp
 	$(CXX) -O2 $(SRC_PATH)/*.cpp $(INCLUDE_PATH) $(REQUIRED_LIBS) -L$(DST_PATH) -lmyopengl -lmyobject -limgui -o $@
 
 $(DIRS):

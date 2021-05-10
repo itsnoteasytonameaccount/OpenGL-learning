@@ -287,4 +287,5 @@ void Instancing::bindMeshVAO()
         glVertexAttribDivisor(6, 1);
     }
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
