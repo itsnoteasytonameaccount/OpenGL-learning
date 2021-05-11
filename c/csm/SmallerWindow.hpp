@@ -15,12 +15,12 @@ static char *vertex_shader = "#version 330 core\n"
 static char *fragment_shader = "#version 330 core\n"
                                "out vec4 FragColor;"
                                "in  vec2 TexCoords;"
-                               ""
+                               "uniform float layer;"
                                "uniform sampler2DArray tex;"
                                ""
                                "void main()"
                                "{"
-                               "    float depthValue = texture(tex, vec3(TexCoords, 0.0f)).r;"
+                               "    float depthValue = texture(tex, vec3(TexCoords, layer)).r;"
                                "    FragColor = vec4(vec3(depthValue), 1.0);"
                                "}";
 static float vertices[] = {
@@ -69,7 +69,7 @@ public:
         shader.compileShader(fragment_shader, GL_FRAGMENT_SHADER, &fshader);
         shader.linkProgram(vshader, fshader, &program);
     };
-    void draw(unsigned int texture, int width, int height, float scale = 0.3)
+    void draw(unsigned int texture, int width, int height, int layer = 0, float scale = 0.3)
     {
         glDisable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
@@ -80,6 +80,7 @@ public:
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
         glUniform1i(glGetUniformLocation(program, "tex"), 1);
+        glUniform1f(glGetUniformLocation(program, "layer"), (float)layer);
 
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 6);

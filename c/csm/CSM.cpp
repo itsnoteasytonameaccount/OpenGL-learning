@@ -1,7 +1,8 @@
 #include "CSM.h"
 
 int WIDTH = 800, HEIGHT = 600;
-const float near = 0.1f, far = 30.0f;
+int SHADOW_MAP_WIDTH = 400, SHADOW_MAP_HEIGHT = 300;
+const float near = 0.1f, far = 50.0f;
 static Camera camera;
 static glm::mat4 projection;
 
@@ -20,36 +21,36 @@ const glm::vec4 normalized_pos[8] = {
     glm::vec4(-1.0f, -1.0f, -1.0f, 1.0f)};
 
 const float square[] = {
-    -10.0f,
+    -20.0f,
     -0.5f,
-    10.0f,
+    20.0f,
     0.0f,
     1.0f,
     0.0f,
     0.0f,
-    10.0f,
+    20.0f,
 
-    10.0f,
+    20.0f,
     -0.5f,
-    10.0f,
+    20.0f,
     0.0f,
     1.0f,
     0.0f,
-    10.0f,
-    10.0f,
+    20.0f,
+    20.0f,
 
-    10.0f,
+    20.0f,
     -0.5f,
-    -10.0f,
+    -20.0f,
     0.0f,
     1.0f,
     0.0f,
-    10.0f,
+    20.0f,
     0.0f,
 
-    -10.0f,
+    -20.0f,
     -0.5f,
-    -10.0f,
+    -20.0f,
     0.0f,
     1.0f,
     0.0f,
@@ -74,7 +75,7 @@ void _setViewport(GLFWwindow *window, int width, int height)
     projection = glm::perspective(glm::radians(45.0f), aspect, near, far);
 }
 
-CSM::CSM(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1), light_direction(1.0f, -0.1f, -1.0f)
+CSM::CSM(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1)
 {
     this->mouseCallback = _mouseCallback;
     this->scrollCallback = NULL;
@@ -84,7 +85,10 @@ CSM::CSM(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1), light_dire
 
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     // glEnable(GL_CULL_FACE);
+    con = new Controller(&adj);
+    con->initImGui(window);
 
     Texture::LoadTexture("dist/blinn_phong/assets/wood.png", &texture);
 
@@ -105,13 +109,14 @@ CSM::~CSM()
     glDeleteBuffers(1, &ebo);
     glDeleteBuffers(1, &model_vbo);
     glDeleteBuffers(1, &vbo);
+    delete con;
 }
 
 void CSM::updateSplitZ(int N)
 {
-    const float lambda = 0.5;
+    const float lambda = adj.lambda;
     float log_split, uniform_split;
-    for (int i = 1; i <= 3; i++)
+    for (int i = 1; i <= SPLIT_QUANTITY; i++)
     {
         log_split = near * pow(far / near, (float)i / N);
         uniform_split = near + (far - near) * ((float)i / N);
@@ -176,7 +181,7 @@ void CSM::computeLightProjection(int i, float aspect, glm::mat4 &view_inverse)
     //           << " maxx: " << maxx
     //           << " maxy: " << maxy
     //           << " maxz: " << maxz << std::endl;
-    light_projection_view[i] = glm::ortho(minx, maxx, miny, maxy, -maxz - 10, -minz) * light_view;
+    light_projection_view[i] = glm::ortho(minx, maxx, miny, maxy, -maxz - adj.light_frustum_stretch, -minz) * light_view;
     // light_projection_view[i] = glm::ortho(0.0f, 100.0f, 0.0f, 100.0f, 0.0f, 100.0f) * light_view;
 }
 
@@ -184,22 +189,27 @@ void CSM::draw()
 {
     float aspect = HEIGHT == 0 ? 0 : (float)WIDTH / HEIGHT;
     glm::mat4 view_inverse = glm::inverse(camera.getViewMatrix());
+    char light_projection_view_param[30] = "light_projection_view[0]";
 
-    light_view = glm::lookAt(-(light_direction * glm::vec3(10.0f)), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    light_view = glm::lookAt(-(adj.light.direction * glm::vec3(10.0f)), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     updateSplitZ();
 
-    glViewport(0, 0, 800, 800);
+    glViewport(0, 0, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
     shadow_shader.useProgram();
+
     glCullFace(GL_FRONT);
-    for (int i = 0; i < 3; i++)
+    // shadow_shader.setUniformMatrix4("projection", projection);
+
+    for (int i = 0; i < SPLIT_QUANTITY; i++)
     {
         glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture_array, 0, i);
         glClear(GL_DEPTH_BUFFER_BIT);
 
         computeLightProjection(i, aspect, view_inverse);
-        shadow_shader.setUniformMatrix4("projection", projection);
         shadow_shader.setUniformMatrix4("projection_view", light_projection_view[i]);
+
         drawScence(shadow_shader);
         /* code */
     }
@@ -211,12 +221,22 @@ void CSM::draw()
     shader.useProgram();
     glCullFace(GL_BACK);
     shader.setUniformMatrix4("projection", projection);
-    shader.setUniformMatrix4("light_projection_view[0]", light_projection_view[0]);
-    shader.setUniformMatrix4("light_projection_view[1]", light_projection_view[1]);
-    shader.setUniformMatrix4("light_projection_view[2]", light_projection_view[2]);
+
+    for (int j = 0; j < SPLIT_QUANTITY; j++)
+    {
+        light_projection_view_param[22] = j + 48;
+        shader.setUniformMatrix4(light_projection_view_param, light_projection_view[j]);
+    }
+
     drawScence(shader);
 
-    sw.draw(texture_array, WIDTH, HEIGHT);
+    adj.camera_pos = camera.getPosition();
+    adj.map_width = SHADOW_MAP_WIDTH;
+    adj.map_height = SHADOW_MAP_HEIGHT;
+    adj.split_quantity = SPLIT_QUANTITY;
+
+    con->draw();
+    sw.draw(texture_array, WIDTH, HEIGHT, adj.show_shadow_map_layer, adj.scale);
 }
 
 void CSM::createVAO()
@@ -242,27 +262,30 @@ void CSM::createVAO()
 
 void CSM::drawScence(Shader &shader)
 {
+    char z_values_param[15] = "z_values[0]";
     shader.setUniformMatrix4("view", camera.getViewMatrix());
     box.bind();
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     shader.setUniform1i("material.tex", 0);
-    shader.setUniform1f("material.shininess", 32.0f);
+    shader.setUniform1f("material.shininess", adj.shininess);
     shader.setUniform3fv("view_pos", camera.getPosition());
 
-    shader.setUniform1f("z_values[0]", z_values[0]);
-    shader.setUniform1f("z_values[1]", z_values[1]);
-    shader.setUniform1f("z_values[2]", z_values[2]);
+    for (int i = 0; i < SPLIT_QUANTITY; i++)
+    {
+        z_values_param[9] = 48 + i;
+        shader.setUniform1f(z_values_param, z_values[i]);
+    }
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture_array);
     shader.setUniform1i("shadow_texel", 1);
 
-    shader.setUniform3fv("light.direction", light_direction);
-    shader.setUniform3fv("light.specular", glm::vec3(1.0f) * glm::vec3(0.3f));
-    shader.setUniform3fv("light.diffuse", glm::vec3(1.0f) * glm::vec3(1.0f));
-    shader.setUniform3fv("light.ambient", glm::vec3(1.0f) * glm::vec3(0.05f));
+    shader.setUniform3fv("light.direction", adj.light.direction);
+    shader.setUniform3fv("light.specular", glm::vec3(adj.light.spec));
+    shader.setUniform3fv("light.diffuse", glm::vec3(adj.light.diff));
+    shader.setUniform3fv("light.ambient", glm::vec3(adj.light.ambient));
 
     shader.setUniform1i("use_uniform", 0);
     shader.setUniform1i("floor", 0);
@@ -302,12 +325,13 @@ void CSM::bindUniform()
 
 void CSM::createModels()
 {
+    float distance = 4.0f;
     for (int i = 0; i < 10; i++)
     {
         for (int j = 0; j < 10; j++)
         {
             models[i * 10 + j] = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            models[i * 10 + j] = glm::translate(models[i * 10 + j], glm::vec3((i - 5) * 2 + 1, (j - 5) * 2 + 1, 0.0f));
+            models[i * 10 + j] = glm::translate(models[i * 10 + j], glm::vec3((i - 5) * distance + 1, (j - 5) * distance + 1, 0.0f));
         }
     }
 }
@@ -317,23 +341,13 @@ void CSM::createFramebuffer()
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glGenTextures(1, &texture_array);
-    // glGenTextures(1, &shadow_texture);
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture_array);
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, 800, 800, 3, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT, SHADOW_MAP_WIDTH, SHADOW_MAP_HEIGHT, SPLIT_QUANTITY, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-    // glBindTexture(GL_TEXTURE_2D, shadow_texture);
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 800, 800, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_texture, 0);
-    // glBindTexture(GL_TEXTURE_2D, 0);
 
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
@@ -342,7 +356,6 @@ void CSM::createFramebuffer()
 
 void CSM::getKeyInput()
 {
-    // Adjust *adjust = (Adjust *)c.getDrawer();
     int direction = 0x00;
     if (getKeyPress(GLFW_KEY_ESCAPE))
     {
@@ -372,14 +385,6 @@ void CSM::getKeyInput()
     {
         direction |= _CAMERA_BACKWARD;
     }
-    // if (getKeyPress(GLFW_KEY_A))
-    // {
-    //     adjust->degree--;
-    // }
-    // if (getKeyPress(GLFW_KEY_D))
-    // {
-    //     adjust->degree++;
-    // }
     if (direction)
     {
         camera.ProcessKeyboardInput(direction, delta);

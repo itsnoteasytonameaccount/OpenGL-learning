@@ -14,9 +14,11 @@ struct Material {
     float shininess;
 };
 
+#define SPLIT_QUANTITY 3
+
 uniform Light light;
-uniform float z_values[3];
-uniform mat4 light_projection_view[3];
+uniform float z_values[SPLIT_QUANTITY];
+uniform mat4 light_projection_view[SPLIT_QUANTITY];
 uniform sampler2DArray shadow_texel;
 uniform vec3 view_pos;
 uniform Material material;
@@ -33,9 +35,22 @@ out vec4 FragColor;
 
 int split = 0;
 
+vec2 offsets[9] = vec2[](
+    vec2(1.0f, 1.0f),
+    vec2(1.0f, -1.0f),
+    vec2(1.0f, 0.0f),
+    vec2(0.0f, 1.0f),
+    vec2(0.0f, -1.0f),
+    vec2(0.0f, 0.0f),
+    vec2(-1.0f, 1.0f),
+    vec2(-1.0f, -1.0f),
+    vec2(-1.0f, 0.0f)
+);
+
 float compute_shadow()
 {
-    for(int i = 0; i < 3; i++)
+    int samplers = 9;
+    for(int i = 0; i < SPLIT_QUANTITY; i++)
     {
         if(z_values[i] >= -fs_in.FragPosCamera.z)
         {
@@ -44,23 +59,18 @@ float compute_shadow()
         }
     }
     float bias = 0.0001;
-    // if(split == 0)
-    // {
-    //     FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-    // }
-    // else if(split == 1)
-    // {
-    //     FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
-    // }
-    // else
-    // {
-    //     FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);
-    // }
     vec4 FragPosLight = light_projection_view[split] * fs_in.FragPosWorld;
     vec3 FragPos = 0.5f * ((FragPosLight.xyz / FragPosLight.w) + 1.0f);
     float depth = FragPos.z;
-    float closest_depth = texture(shadow_texel, vec3(FragPos.xy, float(split))).r;
-    return depth <= closest_depth + bias ? 1.0f : 0.0f;
+    ivec3 tsize = textureSize(shadow_texel, 0);
+    float shadow = 0.0f;
+    for(int j = 0; j < 9; j++)
+    {
+        vec2 offset = vec2(1.0f / tsize.x, 1.0f / tsize.y) * offsets[j];
+        float closest_depth = texture(shadow_texel, vec3(FragPos.xy + offset, float(split))).r;
+        shadow += depth <= closest_depth + bias ? 1.0f : 0.0f;
+    }
+    return shadow / 9.0f;
 }
 
 vec3 compute_light()
@@ -82,7 +92,6 @@ vec3 compute_light()
     float attenuation = 1 / (distance * distance);
     
     return (specular + diffuse) * shadow + ambient;
-    // return vec3(1.0f);
 }
 
 void main()
@@ -110,9 +119,8 @@ void main()
     {
         color *= texel;
     }
+
     color = pow(color, vec3(1/2.2));
     
     FragColor = vec4(color, 1.0f);
-    // FragColor = vec4(texel, 1.0f);
-    // FragColor = vec4(0.0f);
 }
