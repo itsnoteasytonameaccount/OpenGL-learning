@@ -75,11 +75,9 @@ void _setViewport(GLFWwindow *window, int width, int height)
     projection = glm::perspective(glm::radians(45.0f), aspect, near, far);
 }
 
-CSM::CSM(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1)
+CSM::CSM(/* args */) : box(1)
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow("cascaded shadow maps");
+    initWindow("cascaded shadow maps", WIDTH, HEIGHT, _setViewport, _mouseCallback);
     shader.readFile(vertex_shader_path, fragment_shader_path);
     shadow_shader.readFile(light_space_vertex_shader_path, light_space_fragment_shader_path);
 
@@ -356,35 +354,7 @@ void CSM::createFramebuffer()
 
 void CSM::getKeyInput()
 {
-    int direction = 0x00;
-    if (getKeyPress(GLFW_KEY_ESCAPE))
-    {
-        setShouldClose(true);
-    }
-    if (getKeyPress(GLFW_KEY_UP, GLFW_PRESS))
-    {
-        direction |= _CAMERA_UP;
-    }
-    if (getKeyPress(GLFW_KEY_DOWN))
-    {
-        direction |= _CAMERA_DOWN;
-    }
-    if (getKeyPress(GLFW_KEY_RIGHT))
-    {
-        direction |= _CAMERA_RIGHT;
-    }
-    if (getKeyPress(GLFW_KEY_LEFT))
-    {
-        direction |= _CAMERA_LEFT;
-    }
-    if (getKeyPress(GLFW_KEY_W))
-    {
-        direction |= _CAMERA_FORWARD;
-    }
-    if (getKeyPress(GLFW_KEY_S))
-    {
-        direction |= _CAMERA_BACKWARD;
-    }
+    GLWindow::getKeyInput();
     if (direction)
     {
         camera.ProcessKeyboardInput(direction, delta);

@@ -54,11 +54,9 @@ void _mouseCallback(GLFWwindow *window, double xpos, double ypos)
     camera.ProcessMouseMovement(xpos, ypos);
 }
 
-AntiAliasing::AntiAliasing() : GLWindow(WIDTH, HEIGHT, _setViewport), box(1), c(labels, 8, "effect")
+AntiAliasing::AntiAliasing() : box(1), c(labels, 8, "effect")
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow(WIDTH, HEIGHT, "抗锯齿");
+    initWindow("抗锯齿", WIDTH, HEIGHT, _setViewport, _mouseCallback);
 
     shader.readFile(vertex_shader_path, fragment_shader_path);
     square_shader.readFile("dist/anti_aliasing/shader/anti_aliasing_square.vs", "dist/anti_aliasing/shader/anti_aliasing_square.fs");

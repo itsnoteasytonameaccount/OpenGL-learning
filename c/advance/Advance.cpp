@@ -11,10 +11,10 @@ static unsigned int ubo;
 static bool after_create = false;
 
 float points[] = {
-    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // 左上
-     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // 右上
-     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // 右下
-    -0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // 左下
+    -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, // 左上
+    0.5f, 0.5f, 0.0f, 1.0f, 0.0f,  // 右上
+    0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // 右下
+    -0.5f, -0.5f, 1.0f, 1.0f, 0.0f // 左下
 };
 
 void updateUniformBuffer()
@@ -43,11 +43,9 @@ void _mouseCallback(GLFWwindow *window, double xpos, double ypos)
     camera.ProcessMouseMovement(xpos, ypos);
 }
 
-Advance::Advance(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1)
+Advance::Advance(/* args */) : box(1)
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow(WIDTH, HEIGHT, "高级glsl");
+    initWindow("高级glsl", WIDTH, HEIGHT, _setViewport, _mouseCallback);
 
     shader.readFile(vertex_shader_path, fragment_shader_path, geometry_shader_path);
     shader.setUniformBlockBinding("matrices", 0);

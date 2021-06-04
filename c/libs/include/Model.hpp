@@ -16,11 +16,11 @@ private:
     vector<Mesh> meshes;
     std::string directory;
     vector<mesh::Texture> textures_loaded;
-    
+
     void loadModel(std::string path)
     {
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+        const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
         {
             std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -59,6 +59,7 @@ private:
                 loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", textures, len);
                 loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular", textures, len);
                 loadMaterialTextures(material, aiTextureType_REFLECTION, "texture_reflection", textures, len);
+                loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", textures, len);
             }
             else
             {
@@ -85,19 +86,19 @@ private:
             aiString str;
             mesh::Texture texture;
             mat->GetTexture(type, i, &str);
-            Texture::LoadTexture((directory + str.C_Str()).c_str(), &texture_id);
             skip = false;
+            for (int j = 0; j < textures_loaded.size(); j++)
             {
-                for (int j = 0; j < textures_loaded.size(); j++)
-                    if (std::strcmp(textures_loaded[j].path.C_Str(), str.C_Str()) == 0)
-                    {
-                        textures.push_back(textures_loaded[j]);
-                        skip = true;
-                        break;
-                    }
+                if (std::strcmp(textures_loaded[j].path.C_Str(), str.C_Str()) == 0)
+                {
+                    textures.push_back(textures_loaded[j]);
+                    skip = true;
+                    break;
+                }
             }
             if (!skip)
             {
+                Texture::LoadTexture((directory + str.C_Str()).c_str(), &texture_id);
                 texture.id = texture_id;
                 texture.type = typeName;
                 texture.path = str;

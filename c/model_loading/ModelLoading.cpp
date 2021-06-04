@@ -45,13 +45,9 @@ void onScroll(GLFWwindow *window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(yoffset);
 }
 
-ModelLoading::ModelLoading(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), shininess(32.0f), light_position(glm::vec4(1.2f, 1.0f, 2.0f, 1.0f)), light_direction(glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f)), light_color(glm::vec3(1.0f)), c(new IsNormalShow())
+ModelLoading::ModelLoading(/* args */) : shininess(32.0f), light_position(glm::vec4(1.2f, 1.0f, 2.0f, 1.0f)), light_direction(glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f)), light_color(glm::vec3(1.0f)), c(new IsNormalShow())
 {
-
-    this->mouseCallback = onMousemove;
-    this->scrollCallback = onScroll;
-
-    initWindow(WIDTH, HEIGHT, "模型加载场景");
+    initWindow("模型加载场景", WIDTH, HEIGHT, _setViewport, onMousemove, onScroll);
     model = new Model("dist/IronMan/IronMan.obj");
     glEnable(GL_DEPTH_TEST);
     glClearDepth(1.0f);

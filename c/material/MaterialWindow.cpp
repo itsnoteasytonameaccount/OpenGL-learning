@@ -61,12 +61,9 @@ void MaterialWindow::getKeyInput()
     }
 }
 
-MaterialWindow::MaterialWindow() : GLWindow(WIDTH, HEIGHT, _setViewport), light_color(glm::vec3(1.0f)), light_pos(glm::vec3(1.2f, 1.0f, 2.0f)), specular(glm::vec3(0.5f, 0.5f, 0.5f)), ambient(glm::vec3(1.0f, 0.5f, 0.31f)), diffuse(glm::vec3(1.0f, 0.5f, 0.31f)), cube(1), shininess(32.0f)
+MaterialWindow::MaterialWindow() : light_color(glm::vec3(1.0f)), light_pos(glm::vec3(1.2f, 1.0f, 2.0f)), specular(glm::vec3(0.5f, 0.5f, 0.5f)), ambient(glm::vec3(1.0f, 0.5f, 0.31f)), diffuse(glm::vec3(1.0f, 0.5f, 0.31f)), cube(1), shininess(32.0f)
 {
-    this->mouseCallback = mouseMove;
-    this->scrollCallback = scroll;
-
-    initWindow(WIDTH, HEIGHT, "材质场景");
+    initWindow("材质场景", WIDTH, HEIGHT, _setViewport, mouseMove, scroll);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);

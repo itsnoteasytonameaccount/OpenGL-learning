@@ -9,5 +9,5 @@ DST_PATH := $(ROOT_PATH)\dist
 RSC_PATH := $(DST_PATH)\$(CURRENT_PATH)
 SRC_PATH := $(ROOT_PATH)\c\$(CURRENT_PATH)
 
-SHADER_PATH = dist/shader
-ASSETS_PATH = dist/assets
+SHADER_PATH = dist\shader
+ASSETS_PATH = dist\assets

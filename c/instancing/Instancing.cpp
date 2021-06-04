@@ -45,11 +45,9 @@ void _mouseCallback(GLFWwindow *window, double xpos, double ypos)
     camera.ProcessMouseMovement(xpos, ypos);
 }
 
-Instancing::Instancing() : GLWindow(WIDTH, HEIGHT, _setViewport), con(new AmountCon())
+Instancing::Instancing() : con(new AmountCon())
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow(WIDTH, HEIGHT, "实例化");
+    initWindow("实例化", WIDTH, HEIGHT, _setViewport, _mouseCallback);
     con.initImGui(window);
 
     shader.readFile(vertex_shader_path, fragment_shader_path);

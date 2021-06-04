@@ -49,11 +49,9 @@ void _setViewport(GLFWwindow *window, int width, int height)
     updateUniformBuffer();
 }
 
-PointShadows::PointShadows(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1), c(new Adjust())
+PointShadows::PointShadows(/* args */) : box(1), c(new Adjust())
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow("point shadows");
+    initWindow("point shadows", WIDTH, HEIGHT, _setViewport, _mouseCallback);
     shader.readFile(vertex_shader_path, fragment_shader_path);
     shadow_shader.readFile(light_space_vertex_shader_path, light_space_fragment_shader_path, light_space_geometry_shader_path);
     shader.setUniformBlockBinding("Matrices", 0);

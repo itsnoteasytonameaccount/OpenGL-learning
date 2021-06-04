@@ -24,12 +24,9 @@ void scroll(GLFWwindow *window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(yoffset);
 }
 
-LightWindow::LightWindow(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), light_color(glm::vec3(1.0f, 1.0f, 1.0f)), light_pos(glm::vec3(0.0f, 1.0f, 0.0f)), object_color(glm::vec3(1.0f, 0.5f, 0.31f)), cube(1)
+LightWindow::LightWindow(/* args */) : light_color(glm::vec3(1.0f, 1.0f, 1.0f)), light_pos(glm::vec3(0.0f, 1.0f, 0.0f)), object_color(glm::vec3(1.0f, 0.5f, 0.31f)), cube(1)
 {
-    this->mouseCallback = mouseMove;
-    this->scrollCallback = scroll;
-
-    initWindow(WIDTH, HEIGHT, "光照场景");
+    initWindow("光照场景", WIDTH, HEIGHT, _setViewport, mouseMove, scroll);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);
@@ -52,13 +49,13 @@ void LightWindow::draw()
     glm::mat4 model(1.0f);
     glm::mat4 view = camera.getViewMatrix();
     glm::mat3 normal_model = glm::transpose(glm::inverse(glm::mat3(view * model)));
-    
+
     // light_pos.y = sin(getTime()/2) * 3;
     // light_pos.x = cos(getTime()/2) * sin(getTime()/2) * 3;
     // light_pos.z = cos(getTime()/2) * cos(getTime()/2) * 3;
 
     object_shader.useProgram();
-    
+
     object_shader.setUniformMatrix4("model", model);
     object_shader.setUniformMatrix4("projection", projection);
     object_shader.setUniformMatrix4("view", view);
@@ -68,7 +65,6 @@ void LightWindow::draw()
     object_shader.setUniform3fv("objectColor", object_color);
     object_shader.setUniform3fv("viewPos", camera.getPosition());
     cube.draw();
-
 
     model = glm::translate(glm::mat4(1.0f), light_pos);
     model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));

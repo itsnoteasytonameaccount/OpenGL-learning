@@ -34,11 +34,9 @@ void _mouseCallback(GLFWwindow *window, double xpos, double ypos)
     camera.ProcessMouseMovement(xpos, ypos);
 }
 
-Cubemaps::Cubemaps(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1)
+Cubemaps::Cubemaps(/* args */) : box(1)
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow(WIDTH, HEIGHT, "立方体贴图测试场景");
+    initWindow("立方体贴图测试场景", WIDTH, HEIGHT, _setViewport, _mouseCallback);
 
     shader.readFile(vertex_shader_path, fragment_shader_path);
     cubemaps_shader.readFile(cubemaps_vertex_shader_path, cubemaps_fragment_shader_path);
@@ -96,7 +94,7 @@ void Cubemaps::draw()
     {
         m->draw(shader);
     }
-    else if(c.mode == DRAW_BOX)
+    else if (c.mode == DRAW_BOX)
     {
         box.bind();
         box.draw();

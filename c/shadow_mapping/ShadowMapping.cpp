@@ -80,11 +80,9 @@ void _setViewport(GLFWwindow *window, int width, int height)
     updateUniformBuffer();
 }
 
-ShadowMapping::ShadowMapping(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), light_color(1.0f, 1.0f, 1.0f), box(1), c(new Adjust()), light_direction(0.0f, -1.0f, 0.0f)
+ShadowMapping::ShadowMapping(/* args */) : light_color(1.0f, 1.0f, 1.0f), box(1), c(new Adjust()), light_direction(0.0f, -1.0f, 0.0f)
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow("shadow mapping");
+    initWindow("shadow mapping", WIDTH, HEIGHT, _setViewport, _mouseCallback);
     shader.readFile(vertex_shader_path, fragment_shader_path);
     shadow_shader.readFile(light_space_vertex_shader_path, light_space_fragment_shader_path);
     shader.setUniformBlockBinding("Matrices", 0);

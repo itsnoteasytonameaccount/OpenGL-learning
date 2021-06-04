@@ -64,12 +64,9 @@ void scroll(GLFWwindow *window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(yoffset);
 }
 
-LightCasters::LightCasters(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1), light_color(glm::vec4(1.0f)), shininess(32.0f), light_pos(glm::vec4(1.2f, 1.0f, 2.0f, 1.0f)), light_direction(glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f))
+LightCasters::LightCasters(/* args */) : box(1), light_color(glm::vec4(1.0f)), shininess(32.0f), light_pos(glm::vec4(1.2f, 1.0f, 2.0f, 1.0f)), light_direction(glm::vec4(-0.2f, -1.0f, -0.3f, 0.0f))
 {
-    this->mouseCallback = mouseMove;
-    this->scrollCallback = scroll;
-
-    initWindow(WIDTH, HEIGHT, "平行光场景");
+    initWindow("平行光场景", WIDTH, HEIGHT, _setViewport, mouseMove, scroll);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);

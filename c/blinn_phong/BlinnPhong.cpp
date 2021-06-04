@@ -77,11 +77,9 @@ void _setViewport(GLFWwindow *window, int width, int height)
     updateUniformBuffer();
 }
 
-BlinnPhong::BlinnPhong(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), light_color(1.0f, 1.0f, 1.0f), box(1), c(new Adjust())
+BlinnPhong::BlinnPhong(/* args */) : light_color(1.0f, 1.0f, 1.0f), box(1), c(new Adjust())
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow("blinn-phong");
+    initWindow("blinn-phong", WIDTH, HEIGHT, _setViewport, _mouseCallback);
     shader.readFile(vertex_shader_path, fragment_shader_path);
     light_shader.readFile(vertex_shader_path, light_fragment_shader_path);
     shader.setUniformBlockBinding("Matrices", 0);
@@ -131,7 +129,7 @@ void BlinnPhong::createVAO()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    
+
     after_create = true;
     updateUniformBuffer();
 }

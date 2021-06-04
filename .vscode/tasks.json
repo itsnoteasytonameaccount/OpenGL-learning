@@ -124,7 +124,7 @@
             ],
             "options": {
                 "env": {
-                    "COMPILE_PATH": "csm"
+                    "COMPILE_PATH": "csm normal_mapping"
                 }
             },
             "problemMatcher": []

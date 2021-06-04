@@ -1,16 +1,17 @@
 #include <GLWindow.h>
 static int WIDTH = 800, HEIGHT = 600;
+static Camera *camera = NULL;
 
-static void _setViewport(GLFWwindow *window, int width, int height);
-int GLWindow::initWindow(int width, int height, const char *title)
+int GLWindow::initWindow(const char *title, int width, int height, SetViewport setViewport, MouseCallback mouseCallback, ScrollCallback scrollCallback)
 {
-    glfwInit();
+    WIDTH = width;
+    HEIGHT = height;
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
-    window = glfwCreateWindow(width, height, title, NULL, NULL);
+    window = glfwCreateWindow(WIDTH, HEIGHT, title, NULL, NULL);
     if (window == NULL)
     {
         // std::cout << "create window failed" << std::endl;
@@ -27,18 +28,42 @@ int GLWindow::initWindow(int width, int height, const char *title)
         glfwTerminate();
         return GLAD_LOAD_FAILED;
     }
-    setViewport(window, width, height);
+    setViewport(window, WIDTH, HEIGHT);
     lastTime = (float)glfwGetTime();
     return 0;
 }
 
-int GLWindow::initWindow(const char *title)
-{
-    return initWindow(WIDTH, HEIGHT, title);
-}
-
 void GLWindow::getKeyInput()
 {
+    direction = 0x00;
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    {
+        setShouldClose(true);
+    }
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_UP;
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_DOWN;
+    }
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_RIGHT;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_LEFT;
+    }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_FORWARD;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        direction |= _CAMERA_BACKWARD;
+    }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         std::cout << "window:" << window << std::endl;
@@ -59,24 +84,15 @@ void GLWindow::mainLoop()
     }
 }
 
-GLWindow::GLWindow(/* args */)
+GLWindow::GLWindow(Camera *cam)
 {
-    this->mouseCallback = NULL;
-    this->scrollCallback = NULL;
-    this->setViewport = _setViewport;
+    glfwInit();
+    camera = cam;
 }
 
 GLWindow::~GLWindow()
 {
     glfwTerminate();
-}
-GLWindow::GLWindow(int width, int height, SetViewport setViewport)
-{
-    this->setViewport = setViewport;
-    WIDTH = width;
-    HEIGHT = height;
-    mouseCallback = NULL;
-    scrollCallback = NULL;
 }
 float GLWindow::getWidth()
 {
@@ -97,6 +113,16 @@ void _setViewport(GLFWwindow *window, int width, int height)
     WIDTH = width;
     HEIGHT = height;
     glViewport(0, 0, width, height);
+}
+
+void _mouseCallback(GLFWwindow *window, double xpos, double ypos)
+{
+    if (camera != NULL)
+        camera->ProcessMouseMovement(xpos, ypos);
+}
+
+void _scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+{
 }
 
 float GLWindow::getTime()

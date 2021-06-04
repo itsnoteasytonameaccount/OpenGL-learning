@@ -32,11 +32,9 @@ void _mouseCallback(GLFWwindow *window, double xpos, double ypos)
     camera.ProcessMouseMovement(xpos, ypos);
 }
 
-DepthTest::DepthTest(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), box(1)
+DepthTest::DepthTest(/* args */) : box(1)
 {
-    this->mouseCallback = _mouseCallback;
-    this->scrollCallback = NULL;
-    initWindow(WIDTH, HEIGHT, "深度测试场景");
+    initWindow("深度测试场景", WIDTH, HEIGHT, _setViewport, _mouseCallback);
 
     shader.readFile(vertex_shader_path, fragment_shader_path);
 

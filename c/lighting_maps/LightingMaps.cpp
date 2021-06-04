@@ -9,7 +9,7 @@ static const char *vertex_shader_path = "dist/shader/lighting_maps/lighting_maps
                   *light_fragment_shader_path = "dist/shader/lighting_maps/lighting_maps_light.fs",
                   *texture_path = "dist/assets/lighting_maps/container2.png",
                   *specular_texture_path = "dist/assets/lighting_maps/container2_specular.png", //"dist/assets/lighting_maps/lighting_maps_specular_color.png",
-                  *emission_maps_path = "dist/assets/lighting_maps/matrix.jpg";
+                      *emission_maps_path = "dist/assets/lighting_maps/matrix.jpg";
 
 static void _setViewport(GLFWwindow *window, int width, int height)
 {
@@ -29,13 +29,9 @@ void scroll(GLFWwindow *window, double xoffset, double yoffset)
     camera.ProcessMouseScroll(yoffset);
 }
 
-LightingMaps::LightingMaps(/* args */) : GLWindow(WIDTH, HEIGHT, _setViewport), light_color(glm::vec3(1.0f)), light_pos(glm::vec3(1.2f, 1.0f, 2.0f)), specular(glm::vec3(0.5f, 0.5f, 0.5f)), box(1), shininess(32.0f)
+LightingMaps::LightingMaps(/* args */) : light_color(glm::vec3(1.0f)), light_pos(glm::vec3(1.2f, 1.0f, 2.0f)), specular(glm::vec3(0.5f, 0.5f, 0.5f)), box(1), shininess(32.0f)
 {
-
-    this->mouseCallback = mouseMove;
-    this->scrollCallback = scroll;
-
-    initWindow(WIDTH, HEIGHT, "材质场景");
+    initWindow("材质场景", WIDTH, HEIGHT, _setViewport, mouseMove, scroll);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearDepth(1.0f);

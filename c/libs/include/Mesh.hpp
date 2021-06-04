@@ -52,8 +52,9 @@ private:
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ARRAY_BUFFER, verticesSize + normalsSize + texturesSize, nullptr, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, verticesSize * 3 + normalsSize + texturesSize, nullptr, GL_STATIC_DRAW);
 
+        std::cout << sizeof(ai_real) << sizeof(float) << sizeof(double) << std::endl;
         glBufferSubData(GL_ARRAY_BUFFER, 0, verticesSize, mesh->mVertices);
 
         glEnableVertexAttribArray(0);
@@ -67,10 +68,10 @@ private:
         }
 
         glEnableVertexAttribArray(2);
-        if (mesh->mTextureCoords[0] == nullptr)
+        if (mesh->mTextureCoords[0] == NULL)
         {
             char *ptr = (char *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-            memset(ptr + verticesSize + normalsSize, 0, sizeof(texturesSize));
+            memset(ptr + verticesSize + normalsSize, 0, texturesSize);
             glUnmapBuffer(GL_ARRAY_BUFFER);
             glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void *)(verticesSize + normalsSize));
         }
@@ -80,6 +81,20 @@ private:
             glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(C_STRUCT aiVector3D), (void *)(verticesSize + normalsSize));
         }
 
+        if (mesh->mTangents != NULL)
+        {
+            glEnableVertexAttribArray(3);
+            glBufferSubData(GL_ARRAY_BUFFER, verticesSize + normalsSize + texturesSize, verticesSize, mesh->mTangents);
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(C_STRUCT aiVector3D), (void *)(verticesSize + normalsSize + texturesSize));
+        }
+
+        if (mesh->mBitangents != NULL)
+        {
+            glEnableVertexAttribArray(4);
+            glBufferSubData(GL_ARRAY_BUFFER, verticesSize * 2 + normalsSize + texturesSize, verticesSize, mesh->mBitangents);
+            glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(C_STRUCT aiVector3D), (void *)(verticesSize * 2 + normalsSize + texturesSize));
+        }
+        indicesNum = 0;
         for (int i = 0; i < mesh->mNumFaces; i++)
         {
             indicesNum += mesh->mFaces[i].mNumIndices;
@@ -114,12 +129,13 @@ public:
     void draw(Shader &shader, unsigned int amount = 1)
     {
         unsigned int specular_index = 1, diffuse_index = 1, reflection_index = 1;
-        std::string name, number;
+        std::string name, number = "";
         if (has_texture)
         {
             shader.setUniform1i("material.has_texture", 1);
             for (unsigned int i = 0; i < textures.size(); i++)
             {
+                number = "";
                 glActiveTexture(GL_TEXTURE0 + i);
                 name = textures[i].type.C_Str();
                 if (name == "texture_diffuse")
@@ -132,7 +148,7 @@ public:
                 }
                 else if (name == "texture_reflection")
                 {
-                    name = std::to_string(reflection_index++);
+                    number = std::to_string(reflection_index++);
                 }
                 shader.setUniform1i(("material." + name + number).c_str(), i);
                 glBindTexture(GL_TEXTURE_2D, textures[i].id);
