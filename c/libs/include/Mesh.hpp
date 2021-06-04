@@ -54,7 +54,6 @@ private:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ARRAY_BUFFER, verticesSize * 3 + normalsSize + texturesSize, nullptr, GL_STATIC_DRAW);
 
-        std::cout << sizeof(ai_real) << sizeof(float) << sizeof(double) << std::endl;
         glBufferSubData(GL_ARRAY_BUFFER, 0, verticesSize, mesh->mVertices);
 
         glEnableVertexAttribArray(0);

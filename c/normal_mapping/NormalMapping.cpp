@@ -15,7 +15,7 @@ const char *const fragment_shader_path = "dist/normal_mapping/shader/normal_mapp
 
 NormalMapping::NormalMapping(/* args */) : GLWindow(), c(new Adjust())
 {
-    initWindow("法线贴图", WIDTH, HEIGHT);
+    initWindow("法线贴图 & 视差贴图", WIDTH, HEIGHT);
     shader.readFile(vertex_shader_path, fragment_shader_path);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
@@ -23,6 +23,12 @@ NormalMapping::NormalMapping(/* args */) : GLWindow(), c(new Adjust())
     Texture::LoadTexture("dist/normal_mapping/images/brickwall.jpg", &texture);
     // Texture::LoadTexture("dist/normal_mapping/images/normal_mapping_normal_map.png", &normal_map);
     Texture::LoadTexture("dist/normal_mapping/images/brickwall_normal.jpg", &normal_map);
+    Texture::LoadTexture("dist/normal_mapping/images/bricks2.jpg", &texture2);
+    Texture::LoadTexture("dist/normal_mapping/images/bricks2_normal.jpg", &normal_map2);
+    Texture::LoadTexture("dist/normal_mapping/images/bricks2_disp.jpg", &disp_map2);
+    Texture::LoadTexture("dist/normal_mapping/images/toy_box_diffuse.png", &texture3);
+    Texture::LoadTexture("dist/normal_mapping/images/toy_box_normal.png", &normal_map3);
+    Texture::LoadTexture("dist/normal_mapping/images/toy_box_disp.png", &disp_map3);
 
     m = new Model((char *)"dist/normal_mapping/cyborg/cyborg.obj");
     // m = new Model((char *)"dist/cubemaps/nanosuit/nanosuit.obj");
@@ -35,6 +41,13 @@ NormalMapping::~NormalMapping()
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &normal_map);
+    glDeleteTextures(1, &disp_map2);
+    glDeleteTextures(1, &texture2);
+    glDeleteTextures(1, &normal_map2);
+    glDeleteTextures(1, &disp_map3);
+    glDeleteTextures(1, &texture3);
+    glDeleteTextures(1, &normal_map3);
     delete m;
 }
 
@@ -103,8 +116,6 @@ void NormalMapping::createVAO()
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
-    glm::vec3 TBN = glm::mat3(glm::vec3(1.0f, 2.0f, 3.0f), glm::vec3(0.0f), glm::vec3(0.0f)) * glm::vec3(1.0f, 1.0f, 1.0f);
-    std::cout << TBN.x << TBN.y << TBN.z << std::endl;
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -139,10 +150,32 @@ void NormalMapping::draw()
     model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 1.0f, 0.0f));
 
     shader.useProgram();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, normal_map);
+    if (adjust->object < 2)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normal_map);
+    }
+    else if (adjust->object == 2)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normal_map2);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, disp_map2);
+    }
+    else
+    {
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture3);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, normal_map3);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, disp_map3);
+    }
     shader.setUniformMatrix4("projection", projection);
     shader.setUniformMatrix4("model", model);
     shader.setUniformMatrix4("view", view);
@@ -156,15 +189,26 @@ void NormalMapping::draw()
     shader.setUniform1i("material.texture_normal", 1);
     shader.setUniform1f("material.shininess", adjust->shininess);
     shader.setUniform1i("use_normal_map", adjust->mode);
+    shader.setUniform1f("height_scale", adjust->height_scale);
 
-    if (adjust->object == 0)
+    if (adjust->object >= 2)
     {
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        shader.setUniform1i("use_disp_map", 1);
+        shader.setUniform1i("material.texture_disp", 2);
     }
     else
     {
+        shader.setUniform1i("use_disp_map", 0);
+    }
+
+    if (adjust->object == 1)
+    {
         m->draw(shader);
+    }
+    else
+    {
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
     c.draw();
 }

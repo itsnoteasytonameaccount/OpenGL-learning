@@ -17,7 +17,7 @@ class Adjust : public Drawer
 {
 public:
     glm::vec3 camera_pos;
-    float shininess;
+    float shininess, height_scale;
     int mode, object;
     Light *light;
     bool show;

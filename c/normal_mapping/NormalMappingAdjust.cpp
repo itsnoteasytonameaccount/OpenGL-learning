@@ -1,5 +1,7 @@
 #include "NormalMappingAdjust.h"
 
+static const char *targets[] = {"draw brick wall", "draw model", "draw brick wall 2", "draw toy box"};
+
 Adjust::Adjust()
 {
     light = new Light;
@@ -12,6 +14,7 @@ Adjust::Adjust()
     object = 0;
     shininess = 32.0f;
     show = true;
+    height_scale = 1.0f;
 }
 
 Adjust::~Adjust()
@@ -30,14 +33,16 @@ int Adjust::draw()
     ImGui::DragFloat("spec", &light->spec, 0.1f);
     ImGui::DragFloat("diff", &light->diff, 0.01f);
     ImGui::DragFloat("ambient", &light->ambient, 0.01f);
+    ImGui::DragFloat("height_scale", &height_scale, 0.01f);
     ImGui::EndGroup();
-
-    if (ImGui::BeginCombo("draw target", object == 0 ? "draw brick wall" : "draw model"))
+    int count = sizeof(targets) / sizeof(targets[0]);
+    if (ImGui::BeginCombo("draw target", targets[object]))
     {
-        if (ImGui::Selectable("draw brick wall", object == 0))
-            object = 0;
-        if (ImGui::Selectable("draw model", object == 1))
-            object = 1;
+        for (int i = 0; i < count; i++)
+        {
+            if (ImGui::Selectable(targets[i], object == i))
+                object = i;
+        }
         ImGui::EndCombo();
     }
     if (ImGui::BeginCombo("use normal map", mode == 0 ? "yes" : "no"))
