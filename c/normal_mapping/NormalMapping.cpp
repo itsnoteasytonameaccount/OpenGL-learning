@@ -1,7 +1,7 @@
 #include "NormalMapping.h"
 
 static int WIDTH = 800, HEIGHT = 600;
-static float rotate = 0.0f;
+static float rotate = 0.0f, rotate2 = 0.0f;
 static Camera camera;
 // static const float vertices[] = {
 //     -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -148,6 +148,7 @@ void NormalMapping::draw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(rotate2), glm::vec3(1.0f, 0.0f, 0.0f));
 
     shader.useProgram();
     if (adjust->object < 2)
@@ -189,17 +190,10 @@ void NormalMapping::draw()
     shader.setUniform1i("material.texture_normal", 1);
     shader.setUniform1f("material.shininess", adjust->shininess);
     shader.setUniform1i("use_normal_map", adjust->mode);
+    shader.setUniform1i("use_disp_map", adjust->use_disp_map);
+    shader.setUniform1i("divide", adjust->divide);
     shader.setUniform1f("height_scale", adjust->height_scale);
-
-    if (adjust->object >= 2)
-    {
-        shader.setUniform1i("use_disp_map", 1);
-        shader.setUniform1i("material.texture_disp", 2);
-    }
-    else
-    {
-        shader.setUniform1i("use_disp_map", 0);
-    }
+    shader.setUniform1i("material.texture_disp", 2);
 
     if (adjust->object == 1)
     {
@@ -223,6 +217,14 @@ void NormalMapping::getKeyInput()
     if (getKeyPress(GLFW_KEY_A))
     {
         rotate -= 40.f * delta;
+    }
+    if (getKeyPress(GLFW_KEY_Q))
+    {
+        rotate2 += 40.0f * delta;
+    }
+    if (getKeyPress(GLFW_KEY_E))
+    {
+        rotate2 -= 40.f * delta;
     }
     camera.ProcessKeyboardInput(direction, delta);
 }

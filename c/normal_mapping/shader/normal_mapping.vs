@@ -43,6 +43,6 @@ void main()
    vec3 N = normalize(normal_matrix * aNormal);
    vs_out.TBN = mat3(T, B, N);
    
-   vs_out.TangentLightPos = vs_out.TBN * light.position;
-   vs_out.TangentFragPos  = vs_out.TBN * vs_out.FragPos;
+   vs_out.TangentLightPos = transpose(vs_out.TBN) * light.position;
+   vs_out.TangentFragPos  = transpose(vs_out.TBN) * vs_out.FragPos;
 }

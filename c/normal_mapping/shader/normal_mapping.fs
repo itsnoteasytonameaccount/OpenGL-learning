@@ -34,15 +34,37 @@ uniform Light light;
 uniform int use_normal_map;
 uniform int use_disp_map;
 uniform float height_scale;
+uniform int divide;
 
 out vec4 FragColor;
 
 vec2 comput_texcoord(vec2 TexCoord)
 {
     vec3 view_dir = normalize(-fs_in.TangentFragPos);
-    float height = texture(material.texture_disp, TexCoord).r;
-    vec2 coord = view_dir.xy / view_dir.z * height * height_scale;
-    return TexCoord - coord;
+    if(view_dir.z == 0.0f)
+    {
+        return TexCoord;
+    }
+    float depth_change_rate = 1.0f / divide;
+    vec2 direction = view_dir.xy * depth_change_rate / view_dir.z * height_scale;
+    float current_layer_depth = 0.0f;
+    float current_map_depth = texture(material.texture_disp, TexCoord).r;
+    float prev_map_depth = current_map_depth;
+    vec2 current_texcoord = TexCoord;
+    while(current_layer_depth < current_map_depth)
+    {
+        prev_map_depth = current_map_depth;
+        current_texcoord -= direction;
+        current_map_depth = texture(material.texture_disp, current_texcoord).r;
+        current_layer_depth += depth_change_rate;
+    }
+
+    float after_depth = current_map_depth - current_layer_depth;
+    float before_depth = prev_map_depth - current_layer_depth + depth_change_rate;
+
+    float weight = after_depth / (after_depth - before_depth);
+    current_texcoord = current_texcoord + weight * direction; 
+    return current_texcoord;
 }
 
 vec3 compute_light(vec3 normal, vec3 texture_diffuse, vec3 texture_specular)

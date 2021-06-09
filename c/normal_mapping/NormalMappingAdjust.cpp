@@ -12,6 +12,8 @@ Adjust::Adjust()
     light->spec = 0.3f;
     mode = 0;
     object = 0;
+    use_disp_map = 0;
+    divide = 8;
     shininess = 32.0f;
     show = true;
     height_scale = 1.0f;
@@ -34,6 +36,7 @@ int Adjust::draw()
     ImGui::DragFloat("diff", &light->diff, 0.01f);
     ImGui::DragFloat("ambient", &light->ambient, 0.01f);
     ImGui::DragFloat("height_scale", &height_scale, 0.01f);
+    ImGui::DragInt("layer divide amount", &divide);
     ImGui::EndGroup();
     int count = sizeof(targets) / sizeof(targets[0]);
     if (ImGui::BeginCombo("draw target", targets[object]))
@@ -51,6 +54,14 @@ int Adjust::draw()
             mode = 0;
         if (ImGui::Selectable("no", mode == 1))
             mode = 1;
+        ImGui::EndCombo();
+    }
+    if (ImGui::BeginCombo("use disp map", use_disp_map == 0 ? "no" : "yes"))
+    {
+        if (ImGui::Selectable("no", use_disp_map == 0))
+            use_disp_map = 0;
+        if (ImGui::Selectable("yes", use_disp_map == 1))
+            use_disp_map = 1;
         ImGui::EndCombo();
     }
 
