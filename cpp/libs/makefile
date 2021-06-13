@@ -1,6 +1,6 @@
 include make_params.make
 
-FILES_TO_COMPILE = c/libs/src/*.cpp c/libs/src/*.c
+FILES_TO_COMPILE = $(BASE_DIR)/libs/src/*.cpp $(BASE_DIR)/libs/src/*.c
 MID_PRODUCT = glad.o
 TARGET = dist/libmyopengl.dll
 

@@ -1,6 +1,6 @@
 include make_params.make
 
-DIRS = shader planet rock
+DIRS = shader
 
 .PHONY: $(DIRS) mk_rsc_dir
 

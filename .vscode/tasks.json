@@ -124,7 +124,7 @@
             ],
             "options": {
                 "env": {
-                    "COMPILE_PATH": "csm normal_mapping"
+                    "COMPILE_PATH": "csm normal_mapping model_loading"
                 }
             },
             "problemMatcher": []

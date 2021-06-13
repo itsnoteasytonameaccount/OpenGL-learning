@@ -8,7 +8,7 @@
                 "${env:CUSTOM_LIBS_PATH}/include",
                 "${env:CUSTOM_LIBS_PATH}/imgui",
                 "${env:CUSTOM_LIBS_PATH}/imgui/backends",
-                "c/libs/include"
+                "cpp/libs/include"
             ],
             "defines": [
                 "_DEBUG",
