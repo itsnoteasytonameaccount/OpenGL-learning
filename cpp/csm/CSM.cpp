@@ -208,7 +208,7 @@ void CSM::draw()
         computeLightProjection(i, aspect, view_inverse);
         shadow_shader.setUniformMatrix4("projection_view", light_projection_view[i]);
 
-        drawScence(shadow_shader);
+        drawScene(shadow_shader);
         /* code */
     }
 
@@ -226,7 +226,7 @@ void CSM::draw()
         shader.setUniformMatrix4(light_projection_view_param, light_projection_view[j]);
     }
 
-    drawScence(shader);
+    drawScene(shader);
 
     adj.camera_pos = camera.getPosition();
     adj.map_width = SHADOW_MAP_WIDTH;
@@ -258,7 +258,7 @@ void CSM::createVAO()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void CSM::drawScence(Shader &shader)
+void CSM::drawScene(Shader &shader)
 {
     char z_values_param[15] = "z_values[0]";
     shader.setUniformMatrix4("view", camera.getViewMatrix());

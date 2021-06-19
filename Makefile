@@ -2,7 +2,7 @@ include make_params.make
 
 DYNAMIC_LIBRARY = dist/libmyopengl.dll dist/libmyobject.dll dist/libimgui.dll
 
-all: $(COMPILE_PATH)
+all: $(COMPILE_PATH) resources
 
 ifdef SILENT_OPTION
 	SILENT_OPTION = -s
@@ -27,6 +27,9 @@ dist/libimgui.dll: $(IMGUI_OBJS) dist/libmyopengl.dll
 # 编译方式可能有些许差别，所以每个单独写一个文件
 $(COMPILE_PATH): $(DYNAMIC_LIBRARY)
 	$(MAKE) $(SILENT_OPTION) -f $(BASE_DIR)/$@/makefile CURRENT_PATH=$@
+
+resources:
+	@xcopy $(BASE_DIR)\$@ dist\$@ /E /Y /I
 
 clean:
 	del dist\libmyopengl.dll dist\libmyobject.dll

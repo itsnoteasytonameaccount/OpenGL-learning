@@ -143,7 +143,7 @@ void PointShadows::draw()
         matrices_name[16] = 48 + i;
         shadow_shader.setUniformMatrix4(matrices_name, shadow_matrices[i]);
     }
-    renderScence(shadow_shader);
+    renderScene(shadow_shader);
 
     glViewport(0, 0, WIDTH, HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -167,14 +167,14 @@ void PointShadows::draw()
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    renderScence(shader);
+    renderScene(shader);
 
     adjust->camera_pos = camera.getPosition();
     dw.draw(projection, view, depth_texture, WIDTH, HEIGHT, adjust->scale);
     c.draw();
 }
 
-void PointShadows::renderScence(Shader &shader)
+void PointShadows::renderScene(Shader &shader)
 {
     box.bind();
 

@@ -6,7 +6,7 @@ static Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 static const char *vertex_shader_path = "dist/shader/material/vertex_shader.vs", *fragment_shader_path = "dist/shader/material/fragment_shader.fs", *light_fragment_shader_path = "dist/shader/material/light_fragment_shader.fs";
 
-static void _setViewport(GLFWwindow *window, int width, int height)
+void _setViewport(GLFWwindow *window, int width, int height)
 {
     projection = glm::perspective(glm::radians(camera.getZoom()), (float)width / height, 0.1f, 100.0f);
     WIDTH = width;

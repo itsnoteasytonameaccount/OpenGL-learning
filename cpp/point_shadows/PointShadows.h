@@ -22,7 +22,7 @@ public:
     ~PointShadows();
     void createFramebuffer();
     void prepare();
-    void renderScence(Shader &shader);
+    void renderScene(Shader &shader);
     void draw();
     void getKeyInput();
 };

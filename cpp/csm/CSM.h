@@ -34,7 +34,7 @@ public:
     void createVAO();
     void draw();
     void getKeyInput();
-    void drawScence(Shader &shader);
+    void drawScene(Shader &shader);
     CSM(/* args */);
     ~CSM();
 };

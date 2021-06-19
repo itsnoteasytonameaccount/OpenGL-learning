@@ -11,7 +11,7 @@ static const char *vertex_shader_path = "dist/shader/lighting_maps/lighting_maps
                   *specular_texture_path = "dist/assets/lighting_maps/container2_specular.png", //"dist/assets/lighting_maps/lighting_maps_specular_color.png",
                       *emission_maps_path = "dist/assets/lighting_maps/matrix.jpg";
 
-static void _setViewport(GLFWwindow *window, int width, int height)
+void _setViewport(GLFWwindow *window, int width, int height)
 {
     projection = glm::perspective(glm::radians(camera.getZoom()), (float)width / height, 0.1f, 100.0f);
     WIDTH = width;

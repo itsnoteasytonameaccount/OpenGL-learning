@@ -8,7 +8,7 @@ uniform mat4 projection;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat3 normalMatrix;
-uniform vec3 texCoordTrans;
+uniform bool normalFlip;
 
 out VS_OUT {
     vec3 fragPos;
@@ -18,8 +18,9 @@ out VS_OUT {
 
 void main()
 {
-    vs_out.fragPos = view * model * vec4(aFragPos, 1.0f);
-    vs_out.normal = normalize(normalMatrix * aNormal);
-    vs_out.texCoord = texCoordTrans.xy * aTexCoord;
-    gl_Position = projection * vs_out.fragPos;
+    vec4 fragPos = view * model * vec4(aFragPos, 1.0f);
+    vs_out.normal = normalize(normalMatrix * (normalFlip? -aNormal : aNormal));
+    vs_out.texCoord = aTexCoord;
+    vs_out.fragPos = fragPos.xyz;
+    gl_Position = projection * fragPos;
 }

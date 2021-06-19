@@ -153,6 +153,11 @@ public:
     void ProcessMouseScroll(float ypos)
     {
     }
+    void setYaw(float yaw)
+    {
+        this->yaw = yaw;
+        updateCameraVectors();
+    }
     void ProcessMouseMovement(float xpos, float ypos, GLboolean constraint = GL_TRUE)
     {
         turn(xpos, ypos, constraint);
