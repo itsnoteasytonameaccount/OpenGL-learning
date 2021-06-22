@@ -58,6 +58,7 @@ void HDR::draw()
     Adjust *adj = (Adjust *)c.getDrawer();
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Shader &renderShader = adj->scene ? bloomShader : hdrShader;
     if (adj->scene)
         renderScene1();
     else
@@ -67,18 +68,19 @@ void HDR::draw()
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    bloomShader.useProgram();
-    bloomShader.setUniform1i("mode", adj->mode);
-    bloomShader.setUniform1f("exposure", adj->exposure);
+    renderShader.useProgram();
+    renderShader.setUniform1i("mode", adj->mode);
+    renderShader.setUniform1f("exposure", adj->exposure);
     glBindVertexArray(vao);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, first_render_texture);
-    bloomShader.setUniform1i("hdrTex", 0);
+    renderShader.setUniform1i("hdrTex", 0);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, buffers[1]);
-    bloomShader.setUniform1i("blurTex", 1);
+    glBindTexture(GL_TEXTURE_2D, buffers[0]);
+    renderShader.setUniform1i("blurTex", 1);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
+    dw.draw(first_render_texture, WIDTH, HEIGHT, (float)WIDTH * 0.3);
     dw.draw(buffers[0], WIDTH, HEIGHT);
 
     c.draw();

@@ -16,16 +16,16 @@ void main()
     {
         for(int i = 1; i < 5; i++)
         {
-            result += texture(tex, texCoord + offset.x * i).rgb * weight[i];
-            result += texture(tex, texCoord - offset.x * i).rgb * weight[i];
+            result += texture(tex, texCoord + vec2(offset.x * i, 0.0f)).rgb * weight[i];
+            result += texture(tex, texCoord - vec2(offset.x * i, 0.0f)).rgb * weight[i];
         }
     }
     else
     {
         for(int i = 1; i < 5; i++)
         {
-            result += texture(tex, texCoord + offset.y * i).rgb * weight[i];
-            result += texture(tex, texCoord - offset.y * i).rgb * weight[i];
+            result += texture(tex, texCoord + vec2(0.0f, offset.y * i)).rgb * weight[i];
+            result += texture(tex, texCoord - vec2(0.0f, offset.y * i)).rgb * weight[i];
         }
     }
     color = vec4(result, 1.0f);
