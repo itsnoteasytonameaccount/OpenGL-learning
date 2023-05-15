@@ -78,10 +78,11 @@
         "complex": "cpp",
         "cfenv": "cpp",
         "*.make": "makefile",
-        "map": "cpp"
+        "map": "cpp",
+        "str_utils.h": "c"
     },
     "[glsl]": {
         "editor.defaultFormatter": "ms-vscode.cpptools"
     },
-    "zenMode.hideLineNumbers": false,
+    "zenMode.hideLineNumbers": false
 }

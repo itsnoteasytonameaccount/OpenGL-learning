@@ -10,7 +10,7 @@ endif
 
 .PHONY: $(COMPILE_PATH) clean test
 
-OBJS := $(wildcard $(BASE_DIR)/libs/sr$(BASE_DIR)/*.cpp)
+OBJS := $(wildcard $(BASE_DIR)/libs/src/*.cpp)
 OBJS2 := $(wildcard $(BASE_DIR)/object/*.cpp)
 IMGUI_OBJS := $(wildcard $(CUSTOM_LIBS_PATH)/imgui/*.cpp)
 IMGUI_OBJS := $(IMGUI_OBJS) $(CUSTOM_LIBS_PATH)/imgui/backends/imgui_impl_glfw.cpp $(CUSTOM_LIBS_PATH)/imgui/backends/imgui_impl_opengl3.cpp

@@ -124,7 +124,7 @@
             ],
             "options": {
                 "env": {
-                    "COMPILE_PATH": "hdr depth_test"
+                    "COMPILE_PATH": "hdr depth_test anti_aliasing instancing"
                 }
             },
             "problemMatcher": []
