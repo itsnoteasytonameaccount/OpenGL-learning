@@ -8,7 +8,7 @@ export default class BasicProgram extends ProgramBase {
     viewMatrixLoaction: WebGLUniformLocation;
     sampler: WebGLUniformLocation;
     readonly vertexLocation: number = 0;
-    readonly texCroodLocation: number = 1;
+    readonly texCroodLocation: number = 1; // 若未定义layout，可以直接使用gl.getAttribLocation获取
 
     constructor(ctx: WebGLContext) {
         super(ctx);
