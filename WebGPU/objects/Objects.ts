@@ -25,6 +25,49 @@ export default abstract class Objects {
         return buffer;
     }
 
+    /**
+     * 创建缓存并填入数据
+     *
+     * @param datas 缓存数据列表
+     * @param sizes 数据大小列表
+     * @param type 缓存类型
+     * @param gl webgl实例
+     * @returns 生成的缓存
+     */
+    static initBufferDatas(
+        datas: ArrayBuffer[],
+        sizes: number[],
+        type: GPUBufferUsageFlags,
+        device: GPUDevice
+    ): GPUBuffer {
+        const total = datas.reduce((sum, data) => sum + data.byteLength, 0);
+        const buffer: GPUBuffer = device.createBuffer({
+            size: total,
+            usage: type,
+        });
+        let used = 0;
+        datas.forEach((data, index) => {
+            device.queue.writeBuffer(buffer, used, data, 0, sizes[index]);
+            used += data.byteLength;
+        });
+        return buffer;
+    }
+
+    static initEmptyBuffer(size: number, type: GPUBufferUsageFlags, device: GPUDevice): GPUBuffer {
+        return device.createBuffer({
+            size,
+            usage: type,
+        });
+    }
+
+    static writeBufferDatas(buffer: GPUBuffer, datas: ArrayBuffer[], sizes: number[], device: GPUDevice) {
+        let used = 0;
+        datas.forEach((data, index) => {
+            device.queue.writeBuffer(buffer, used, data, 0, sizes[index]);
+            used += data.byteLength;
+        });
+    }
+
     transform(matrix: mat4) {
         mat4.mul(this.modelMatrix, matrix, this.modelMatrix);
     }
@@ -54,4 +97,6 @@ export default abstract class Objects {
     getModelMaxtrix(): mat4 {
         return this.modelMatrix;
     }
+
+    abstract getIndicesSize(): number;
 }

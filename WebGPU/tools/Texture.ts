@@ -60,4 +60,22 @@ export default class Texture {
             clipedImage.src = canvas.toDataURL("image/png");
         });
     }
+
+    static async createTexture(path: string, device: GPUDevice): Promise<GPUTexture> {
+        const img = document.createElement("img");
+        img.src = path;
+        await img.decode();
+        const imageBitmap = await createImageBitmap(img);
+
+        const cubeTexture = device.createTexture({
+            size: [imageBitmap.width, imageBitmap.height, 1],
+            format: "rgba8unorm",
+            usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+        device.queue.copyExternalImageToTexture({ source: imageBitmap }, { texture: cubeTexture }, [
+            imageBitmap.width,
+            imageBitmap.height,
+        ]);
+        return cubeTexture;
+    }
 }

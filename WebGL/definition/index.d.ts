@@ -16,3 +16,13 @@ type WebGLTextureId =
     | WebGLRenderingContextBase["TEXTURE10"]
     | WebGLRenderingContextBase["TEXTURE11"]
     | WebGLRenderingContextBase["TEXTURE12"];
+
+interface AttributeDescriptor {
+    name: string;
+    value: WebGLBuffer;
+}
+
+interface UnifromDescriptor {
+    name: string;
+    value: Float32Array | number[] | number;
+}

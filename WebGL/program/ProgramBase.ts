@@ -68,4 +68,6 @@ export default abstract class ProgramBase {
     abstract getVertexShader(): GLShader;
 
     abstract getFragmentShader(): GLShader;
+
+    abstract setParameters(attributes: AttributeDescriptor[], uniforms: UnifromDescriptor[]);
 }

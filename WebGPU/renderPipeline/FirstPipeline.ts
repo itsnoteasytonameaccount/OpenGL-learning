@@ -2,8 +2,13 @@ import code from "@GPUShader/firstShader.wgsl?raw";
 import PipelineBase from "./PipelineBase";
 
 export default class FirstPipeline extends PipelineBase {
+    sampler: GPUSampler;
     constructor(device: GPUDevice) {
         super(device, code);
+        this.sampler = this.device.createSampler({
+            magFilter: "linear",
+            minFilter: "linear",
+        });
     }
 
     createRenderPipelineDescriptor(vertexBuffers: GPUVertexBufferLayout[]): GPURenderPipelineDescriptor {
@@ -27,6 +32,11 @@ export default class FirstPipeline extends PipelineBase {
                 topology: "triangle-list",
             },
             layout: "auto",
+            depthStencil: {
+                depthWriteEnabled: true,
+                depthCompare: "less",
+                format: "depth24plus",
+            },
         };
     }
 
@@ -49,5 +59,29 @@ export default class FirstPipeline extends PipelineBase {
                 stepMode: "vertex",
             },
         ];
+    }
+
+    getBindGroup(buffer: GPUBuffer, texture: GPUTexture, renderPipeline: GPURenderPipeline): GPUBindGroup {
+        return this.device.createBindGroup({
+            layout: renderPipeline.getBindGroupLayout(0),
+            entries: [
+                {
+                    binding: 0,
+                    resource: {
+                        buffer,
+                        offset: 0,
+                        size: 4 * 16 * 3,
+                    },
+                },
+                {
+                    binding: 1,
+                    resource: this.sampler,
+                },
+                {
+                    binding: 2,
+                    resource: texture.createView(),
+                },
+            ],
+        });
     }
 }

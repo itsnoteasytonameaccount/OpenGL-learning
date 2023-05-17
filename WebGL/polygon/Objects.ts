@@ -1,3 +1,4 @@
+import ProgramBase from "@WebGL/program/ProgramBase";
 import { glMatrix, mat4, vec3 } from "gl-matrix";
 
 export default abstract class Objects {
@@ -56,4 +57,8 @@ export default abstract class Objects {
     getModelMaxtrix(): mat4 {
         return this.modelMatrix;
     }
+
+    abstract draw(program: ProgramBase): void;
+
+    abstract getIndicesSize(): number;
 }

@@ -1,4 +1,7 @@
+import ProgramBase from "@WebGL/program/ProgramBase";
+import textureImage from "@texture/container2.png";
 import Objects from "./Objects";
+import Texture from "@WebGL/tools/Texture";
 
 const arrIndices = [
     0, 1, 2, 0, 2, 3, 0, 1, 4, 1, 4, 5, 0, 3, 4, 3, 4, 7, 2, 6, 1, 6, 1, 5, 2, 6, 3, 6, 3, 7, 4, 5, 6, 4, 6, 7,
@@ -15,6 +18,8 @@ export default class Box extends Objects {
     vertex: WebGLBuffer;
     texCroods: WebGLBuffer;
     indices: WebGLBuffer;
+    texture: HTMLImageElement = null;
+
     constructor(ctx: WebGLContext, drawElements: boolean = true) {
         super(ctx);
         if (drawElements) {
@@ -22,6 +27,7 @@ export default class Box extends Objects {
         } else {
             this.createDrawArraysDataBuffer();
         }
+        Texture.loadImage(textureImage).then((image) => (this.texture = image));
     }
 
     createDataBuffer(): void {
@@ -73,7 +79,7 @@ export default class Box extends Objects {
      */
     private getDrawArraysVertex(): WebGLBuffer {
         const gl = this.ctx;
-        const vertex = new Float32Array(arrIndices.map((index) => arrVertex[index]));
+        const vertex = new Float32Array(arrIndices.map((index) => arrVertex.slice(index * 3, (index + 1) * 3)).flat(1));
         return Objects.initBufferData(vertex, gl.ARRAY_BUFFER, gl);
     }
 
@@ -87,5 +93,35 @@ export default class Box extends Objects {
         const arr: number[] = new Array(6).fill(arrTexCroods.slice(0, 12)).flat(1);
         const texCroods = new Float32Array(arr);
         return Objects.initBufferData(texCroods, gl.ARRAY_BUFFER, gl);
+    }
+
+    draw(program: ProgramBase) {
+        const gl = this.ctx;
+        if (this.texture) {
+            Texture.load2DTexture(gl.TEXTURE0, this.texture, gl);
+        }
+        program.setParameters(
+            [
+                {
+                    name: "vertex",
+                    value: this.vertex,
+                },
+                {
+                    name: "texCroods",
+                    value: this.texCroods,
+                },
+            ],
+            [
+                {
+                    name: "samplerId",
+                    value: 0,
+                },
+            ]
+        );
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices);
+    }
+
+    getIndicesSize(): number {
+        return arrIndices.length;
     }
 }
