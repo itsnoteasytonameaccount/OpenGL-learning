@@ -11,10 +11,10 @@ export default class FirstScene extends SceneBase {
         super(ctx, Math.PI / 4, 0.1, 100);
         this.program = new BasicProgram(ctx);
         this.camera = new Camera(vec3.fromValues(0, 0, 5), 10, 10);
-        this.box = new Box(ctx);
+        this.box = new Box(ctx, false);
     }
+
     draw(): void {
-        const gl = this.ctx;
         const box = this.box;
         const program = <BasicProgram>this.program;
         this.reset();
@@ -23,8 +23,10 @@ export default class FirstScene extends SceneBase {
         box.selfRotate(Math.floor(Date.now() / 10) % 360, vec3.fromValues(0, 1, 0));
         program.use();
         program.fillUniformProjectionMatrix(this.perspectiveMatrix);
-        program.fillUniformModelViewMatrix(mat4.mul(mat4.create(), this.camera.getViewMatrix(), box.getModelMaxtrix()));
+        program.fillUniformModelViewMatrix(mat4.mul(mat4.create(), mat4.create(), box.getModelMaxtrix()));
         box.draw(program);
-        gl.drawElements(gl.TRIANGLES, box.getIndicesSize(), gl.UNSIGNED_SHORT, 0);
+        box.translate(1, 2, 0);
+        program.fillUniformModelViewMatrix(mat4.mul(mat4.create(), mat4.create(), box.getModelMaxtrix()));
+        box.draw(program);
     }
 }

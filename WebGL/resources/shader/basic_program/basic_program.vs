@@ -12,4 +12,5 @@ out highp vec2 vTextureCoord;
 void main(){
     gl_Position = projectionMatrix * modelViewMatrix * vec4(vertexPosition, 1.0);
     vTextureCoord = textureCoord;
+    vColor = vec4(vertexPosition, 1.0);
 }

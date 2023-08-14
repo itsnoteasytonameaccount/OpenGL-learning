@@ -51,6 +51,17 @@ export default class BasicProgram extends ProgramBase {
         this.ctx.uniform1i(this.sampler, samplerIndex);
     }
 
+    getAttributeLocation(name: string): number {
+        switch (name) {
+            case "vertex":
+                return this.vertexLocation;
+            case "texCroods":
+                return this.texCroodLocation;
+            default:
+                return super.getAttributeLocation(name);
+        }
+    }
+
     setParameters(attributes: AttributeDescriptor[], uniforms: UnifromDescriptor[]) {
         attributes.forEach((descriptor) => {
             switch (descriptor.name) {

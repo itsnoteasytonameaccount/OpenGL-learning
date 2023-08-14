@@ -14,11 +14,38 @@ const arrTexCroods = [
     0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0,
 ];
 
+const boxDatas = [
+    -0.5, -0.5, -0.5, 0.0, 0.0, -1.0, 0.0, 0.0, 0.5, 0.5, -0.5, 0.0, 0.0, -1.0, 1.0, 1.0, 0.5, -0.5, -0.5, 0.0, 0.0,
+    -1.0, 1.0, 0.0, 0.5, 0.5, -0.5, 0.0, 0.0, -1.0, 1.0, 1.0, -0.5, -0.5, -0.5, 0.0, 0.0, -1.0, 0.0, 0.0, -0.5, 0.5,
+    -0.5, 0.0, 0.0, -1.0, 0.0, 1.0,
+
+    -0.5, -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.5, -0.5, 0.5, 0.0, 0.0, 1.0, 1.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 1.0,
+    1.0, 1.0, 0.5, 0.5, 0.5, 0.0, 0.0, 1.0, 1.0, 1.0, -0.5, 0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 1.0, -0.5, -0.5, 0.5, 0.0,
+    0.0, 1.0, 0.0, 0.0,
+
+    -0.5, 0.5, 0.5, -1.0, 0.0, 0.0, 1.0, 0.0, -0.5, 0.5, -0.5, -1.0, 0.0, 0.0, 1.0, 1.0, -0.5, -0.5, -0.5, -1.0, 0.0,
+    0.0, 0.0, 1.0, -0.5, -0.5, -0.5, -1.0, 0.0, 0.0, 0.0, 1.0, -0.5, -0.5, 0.5, -1.0, 0.0, 0.0, 0.0, 0.0, -0.5, 0.5,
+    0.5, -1.0, 0.0, 0.0, 1.0, 0.0,
+
+    0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 0.0, 0.5, -0.5, -0.5, 1.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.5, -0.5, 1.0, 0.0, 0.0,
+    1.0, 1.0, 0.5, -0.5, -0.5, 1.0, 0.0, 0.0, 0.0, 1.0, 0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 0.0, 0.5, -0.5, 0.5, 1.0,
+    0.0, 0.0, 0.0, 0.0,
+
+    -0.5, -0.5, -0.5, 0.0, -1.0, 0.0, 0.0, 1.0, 0.5, -0.5, -0.5, 0.0, -1.0, 0.0, 1.0, 1.0, 0.5, -0.5, 0.5, 0.0, -1.0,
+    0.0, 1.0, 0.0, 0.5, -0.5, 0.5, 0.0, -1.0, 0.0, 1.0, 0.0, -0.5, -0.5, 0.5, 0.0, -1.0, 0.0, 0.0, 0.0, -0.5, -0.5,
+    -0.5, 0.0, -1.0, 0.0, 0.0, 1.0,
+
+    -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5, 0.5, 0.5, 0.0, 1.0, 0.0, 1.0, 0.0, 0.5, 0.5, -0.5, 0.0, 1.0, 0.0,
+    1.0, 1.0, 0.5, 0.5, 0.5, 0.0, 1.0, 0.0, 1.0, 0.0, -0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 1.0, -0.5, 0.5, 0.5, 0.0,
+    1.0, 0.0, 0.0, 0.0,
+];
+
 export default class Box extends Objects {
     vertex: WebGLBuffer;
     texCroods: WebGLBuffer;
     indices: WebGLBuffer;
-    texture: HTMLImageElement = null;
+    textureImage: HTMLImageElement = null;
+    texture: WebGLTexture = null;
 
     constructor(ctx: WebGLContext, drawElements: boolean = true) {
         super(ctx);
@@ -27,7 +54,7 @@ export default class Box extends Objects {
         } else {
             this.createDrawArraysDataBuffer();
         }
-        Texture.loadImage(textureImage).then((image) => (this.texture = image));
+        Texture.loadImage(textureImage).then((image) => (this.textureImage = image));
     }
 
     createDataBuffer(): void {
@@ -37,8 +64,10 @@ export default class Box extends Objects {
     }
 
     createDrawArraysDataBuffer(): void {
-        this.vertex = this.getDrawArraysVertex();
-        this.texCroods = this.getDrawArraysTexCroods();
+        const gl = this.ctx;
+        const datas = new Float32Array(boxDatas);
+        console.log(datas.length);
+        this.vertex = Objects.initBufferData(datas, gl.ARRAY_BUFFER, gl);
     }
 
     /**
@@ -72,53 +101,18 @@ export default class Box extends Objects {
         return Objects.initBufferData(indices, gl.ELEMENT_ARRAY_BUFFER, gl);
     }
 
-    /**
-     * 顶过drawArray形式绘制时，顶点坐标列表
-     *
-     * @returns {WebGLBuffer} 顶点缓冲数据
-     */
-    private getDrawArraysVertex(): WebGLBuffer {
-        const gl = this.ctx;
-        const vertex = new Float32Array(arrIndices.map((index) => arrVertex.slice(index * 3, (index + 1) * 3)).flat(1));
-        return Objects.initBufferData(vertex, gl.ARRAY_BUFFER, gl);
-    }
-
-    /**
-     * 顶过drawArray形式绘制时，顶点纹理坐标数据
-     *
-     * @returns {WebGLBuffer} 顶点缓冲数据
-     */
-    private getDrawArraysTexCroods(): WebGLBuffer {
-        const gl = this.ctx;
-        const arr: number[] = new Array(6).fill(arrTexCroods.slice(0, 12)).flat(1);
-        const texCroods = new Float32Array(arr);
-        return Objects.initBufferData(texCroods, gl.ARRAY_BUFFER, gl);
-    }
-
     draw(program: ProgramBase) {
         const gl = this.ctx;
-        if (this.texture) {
-            Texture.load2DTexture(gl.TEXTURE0, this.texture, gl);
+        if (this.textureImage && this.texture === null) {
+            this.texture = Texture.load2DTexture(gl.TEXTURE0, this.textureImage, gl);
         }
-        program.setParameters(
-            [
-                {
-                    name: "vertex",
-                    value: this.vertex,
-                },
-                {
-                    name: "texCroods",
-                    value: this.texCroods,
-                },
-            ],
-            [
-                {
-                    name: "samplerId",
-                    value: 0,
-                },
-            ]
-        );
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices);
+
+        const vertex = program.getAttributeLocation("vertex");
+        const texCoords = program.getAttributeLocation("texCroods");
+        program.enableVertexArray(this.vertex, vertex, 3, 8, 0);
+        program.enableVertexArray(this.vertex, texCoords, 2, 8, 6);
+        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices);
+        gl.drawArrays(gl.TRIANGLES, 0, 36);
     }
 
     getIndicesSize(): number {

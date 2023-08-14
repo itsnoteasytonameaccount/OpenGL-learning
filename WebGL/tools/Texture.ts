@@ -1,5 +1,5 @@
 export default class Texture {
-    static async load2DTexture(textureId: WebGLTextureId, image: HTMLImageElement, gl: WebGLContext) {
+    static load2DTexture(textureId: WebGLTextureId, image: HTMLImageElement, gl: WebGLContext): WebGLTexture {
         const texture = gl.createTexture();
         gl.activeTexture(textureId);
         gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -9,6 +9,7 @@ export default class Texture {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.generateMipmap(gl.TEXTURE_2D);
+        return texture;
     }
 
     static loadImage(path: string, clip: boolean = false): Promise<HTMLImageElement> {
