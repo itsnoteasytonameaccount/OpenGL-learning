@@ -60,7 +60,7 @@ export default abstract class ProgramBase {
         if (ctx.getProgramParameter(program, ctx.LINK_STATUS)) {
             return program;
         } else {
-            throw new Error("Link program failed!");
+            throw new Error("Link program failed!" + ctx.getProgramInfoLog(program));
         }
     }
 

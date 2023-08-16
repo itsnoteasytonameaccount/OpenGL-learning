@@ -42,20 +42,33 @@ export default abstract class SceneBase {
     handleKeyDown(e: KeyboardEvent) {
         let yaw = this.camera.yaw;
         let pitch = this.camera.pitch;
+        let [x, y, z] = this.camera.position;
         const key = e.key.toLocaleLowerCase();
-        console.log("key", key);
-        if (key === "e") {
+        console.log(key);
+        if (key === "a") {
             yaw += 2;
             this.camera.setYawPitch(yaw, pitch);
-        } else if (key === "q") {
+        } else if (key === "d") {
             yaw -= 2;
             this.camera.setYawPitch(yaw, pitch);
-        } else if (key === "arrowup") {
+        } else if (key === "w") {
             pitch += 1;
             this.camera.setYawPitch(yaw, pitch);
-        } else if (key === "arrowdown") {
+        } else if (key === "s") {
             pitch -= 1;
             this.camera.setYawPitch(yaw, pitch);
+        } else if (key === "arrowup") {
+            y += 0.1;
+            this.camera.updatePosition([x, y, z]);
+        } else if (key === "arrowdown") {
+            y -= 0.1;
+            this.camera.updatePosition([x, y, z]);
+        } else if (key === "arrowleft") {
+            x -= 0.1;
+            this.camera.updatePosition([x, y, z]);
+        } else if (key === "arrowright") {
+            x += 0.1;
+            this.camera.updatePosition([x, y, z]);
         }
     }
 

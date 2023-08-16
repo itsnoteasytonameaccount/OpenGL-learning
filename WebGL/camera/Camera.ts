@@ -37,6 +37,10 @@ export default class Camera {
         this.updateCameraVectors();
     }
 
+    updatePosition(position: vec3) {
+        this.position = vec3.clone(position);
+    }
+
     updateAngle(): void {
         const pitchRadian = -Math.asin(this.front[1]);
         const cosPitch = Math.cos(pitchRadian);

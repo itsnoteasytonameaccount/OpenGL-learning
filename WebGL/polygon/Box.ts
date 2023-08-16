@@ -112,10 +112,10 @@ export default class Box extends Objects {
         const texCoords = program.getAttributeLocation("texCroods");
         const normals = program.getAttributeLocation("normals");
         program.enableVertexArray(this.vertex, vertex, 3, 8, 0);
-        program.enableVertexArray(this.vertex, texCoords, 2, 8, 6);
         if (normals !== ATTRIBUTE_LOCATION_UNDEFINED) {
             program.enableVertexArray(this.vertex, normals, 3, 8, 3);
         }
+        program.enableVertexArray(this.vertex, texCoords, 2, 8, 6);
         // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices);
         gl.drawArrays(gl.TRIANGLES, 0, 36);
     }

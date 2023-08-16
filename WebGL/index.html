@@ -7,8 +7,28 @@
         <title>Document</title>
     </head>
     <body>
-        <main>
-            <div id="container"></div>
+        <main style="display: flex">
+            <div id="container" style="flex-shrink: 0"></div>
+            <form id="webgl-config">
+                <fieldset title="light position">
+                    <legend>light position</legend>
+                    <label for="lightPos.x">x:</label>
+                    <input id="lightPos.x" type="number" value="0" name="lightPos.x" />
+                    <label for="lightPos.y">y:</label>
+                    <input id="lightPos.y" type="number" value="0" name="lightPos.y" />
+                    <label for="lightPos.z">z:</label>
+                    <input id="lightPos.z" type="number" value="0" name="lightPos.z" />
+                </fieldset>
+                <fieldset title="lightColor">
+                    <legend>lightColor</legend>
+                    <label for="lightColor.r">r:</label>
+                    <input id="lightColor.r" type="number" value="1" name="lightColor.r" />
+                    <label for="lightColor.g">g:</label>
+                    <input id="lightColor.g" type="number" value="1" name="lightColor.g" />
+                    <label for="lightColor.b">b:</label>
+                    <input id="lightColor.b" type="number" value="1" name="lightColor.b" />
+                </fieldset>
+            </form>
         </main>
         <script src="./index.js" type="module"></script>
         <style>

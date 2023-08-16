@@ -1,4 +1,4 @@
-import FirstScene from "./scenes/FirstScene";
+import PhoneLightScene from "./scenes/PhoneLightScene";
 import SceneBase from "./scenes/SceneBase";
 
 export default class MainLoop {
@@ -13,14 +13,14 @@ export default class MainLoop {
         this.cvs.width = 1000;
         let ctx: WebGLContext | null = this.cvs.getContext("webgl2");
         if (ctx === null) {
-            console.log('webgl version1');
+            console.log("webgl version1");
             ctx = this.cvs.getContext("webgl");
         }
         if (ctx === null) {
             throw new Error("Not support webGL!");
         }
         this.ctx = ctx;
-        this.scene = new FirstScene(ctx);
+        this.scene = new PhoneLightScene(ctx);
     }
 
     mount(query: string): void {
