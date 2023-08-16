@@ -42,6 +42,12 @@ export default abstract class Objects {
         mat4.mul(this.modelMatrix, translateMatrix, this.modelMatrix);
     }
 
+    scale(x: number, y: number, z: number) {
+        const scaleMatrix = mat4.create();
+        mat4.scale(scaleMatrix, scaleMatrix, vec3.fromValues(x, y, z));
+        mat4.mul(this.modelMatrix, scaleMatrix, this.modelMatrix);
+    }
+
     rotate(angle: number, axis: vec3 = vec3.fromValues(0, 1.0, 0)) {
         const radians = glMatrix.toRadian(angle);
         const rotateMatrix = mat4.create();

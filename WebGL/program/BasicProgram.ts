@@ -61,31 +61,4 @@ export default class BasicProgram extends ProgramBase {
                 return super.getAttributeLocation(name);
         }
     }
-
-    setParameters(attributes: AttributeDescriptor[], uniforms: UnifromDescriptor[]) {
-        attributes.forEach((descriptor) => {
-            switch (descriptor.name) {
-                case "vertex":
-                    this.bindVertexPointer(descriptor.value);
-                    break;
-                case "texCroods":
-                    this.bindTexturePointer(descriptor.value);
-                    break;
-            }
-        });
-
-        uniforms.forEach((descriptor) => {
-            switch (descriptor.name) {
-                case "modelViewMatrix":
-                    this.fillUniformModelViewMatrix(<mat4>descriptor.value);
-                    break;
-                case "projectionMatrix":
-                    this.fillUniformProjectionMatrix(<mat4>descriptor.value);
-                    break;
-                case "samplerId":
-                    this.useSampler(<number>descriptor.value);
-                    break;
-            }
-        });
-    }
 }

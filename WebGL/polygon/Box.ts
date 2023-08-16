@@ -1,7 +1,7 @@
 import ProgramBase from "@WebGL/program/ProgramBase";
-import textureImage from "@texture/container2.png";
 import Objects from "./Objects";
 import Texture from "@WebGL/tools/Texture";
+import { ATTRIBUTE_LOCATION_UNDEFINED } from "@WebGL/definition/constant";
 
 const arrIndices = [
     0, 1, 2, 0, 2, 3, 0, 1, 4, 1, 4, 5, 0, 3, 4, 3, 4, 7, 2, 6, 1, 6, 1, 5, 2, 6, 3, 6, 3, 7, 4, 5, 6, 4, 6, 7,
@@ -47,14 +47,16 @@ export default class Box extends Objects {
     textureImage: HTMLImageElement = null;
     texture: WebGLTexture = null;
 
-    constructor(ctx: WebGLContext, drawElements: boolean = true) {
+    constructor(ctx: WebGLContext, textureImage: string | null, drawElements: boolean = true) {
         super(ctx);
         if (drawElements) {
             this.createDataBuffer();
         } else {
             this.createDrawArraysDataBuffer();
         }
-        Texture.loadImage(textureImage).then((image) => (this.textureImage = image));
+        if (textureImage !== null) {
+            Texture.loadImage(textureImage).then((image) => (this.textureImage = image));
+        }
     }
 
     createDataBuffer(): void {
@@ -66,7 +68,6 @@ export default class Box extends Objects {
     createDrawArraysDataBuffer(): void {
         const gl = this.ctx;
         const datas = new Float32Array(boxDatas);
-        console.log(datas.length);
         this.vertex = Objects.initBufferData(datas, gl.ARRAY_BUFFER, gl);
     }
 
@@ -101,16 +102,20 @@ export default class Box extends Objects {
         return Objects.initBufferData(indices, gl.ELEMENT_ARRAY_BUFFER, gl);
     }
 
-    draw(program: ProgramBase) {
+    draw(program: ProgramBase, textureId: WebGLTextureId = this.ctx.TEXTURE0) {
         const gl = this.ctx;
         if (this.textureImage && this.texture === null) {
-            this.texture = Texture.load2DTexture(gl.TEXTURE0, this.textureImage, gl);
+            this.texture = Texture.load2DTexture(textureId, this.textureImage, gl);
         }
 
         const vertex = program.getAttributeLocation("vertex");
         const texCoords = program.getAttributeLocation("texCroods");
+        const normals = program.getAttributeLocation("normals");
         program.enableVertexArray(this.vertex, vertex, 3, 8, 0);
         program.enableVertexArray(this.vertex, texCoords, 2, 8, 6);
+        if (normals !== ATTRIBUTE_LOCATION_UNDEFINED) {
+            program.enableVertexArray(this.vertex, normals, 3, 8, 3);
+        }
         // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indices);
         gl.drawArrays(gl.TRIANGLES, 0, 36);
     }

@@ -12,7 +12,8 @@ export default abstract class SceneBase {
     constructor(ctx: WebGLContext, viewAngle: number, near: number, far: number) {
         this.ctx = ctx;
         this.perspectiveMatrix = this.getProjectionMatrix(viewAngle, near, far);
-        this.ctx.canvas.addEventListener("mousemove", throttle(this.handleMouseMove, 50).bind(this));
+        // this.ctx.canvas.addEventListener("mousemove", throttle(this.handleMouseMove, 50).bind(this));
+        window.addEventListener("keydown", throttle(this.handleKeyDown, 25).bind(this));
     }
 
     getProjectionMatrix(viewAngle: number, near: number, far: number): mat4 {
@@ -36,6 +37,26 @@ export default abstract class SceneBase {
         const yaw = (x / width) * 2 * (45 / 2);
         const pitch = (-y / height) * 2 * (45 / 2);
         this.camera.setYawPitch(yaw, pitch);
+    }
+
+    handleKeyDown(e: KeyboardEvent) {
+        let yaw = this.camera.yaw;
+        let pitch = this.camera.pitch;
+        const key = e.key.toLocaleLowerCase();
+        console.log("key", key);
+        if (key === "e") {
+            yaw += 2;
+            this.camera.setYawPitch(yaw, pitch);
+        } else if (key === "q") {
+            yaw -= 2;
+            this.camera.setYawPitch(yaw, pitch);
+        } else if (key === "arrowup") {
+            pitch += 1;
+            this.camera.setYawPitch(yaw, pitch);
+        } else if (key === "arrowdown") {
+            pitch -= 1;
+            this.camera.setYawPitch(yaw, pitch);
+        }
     }
 
     reset(): void {
